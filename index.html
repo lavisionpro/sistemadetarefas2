@@ -1,0 +1,1939 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TaskForce - Lista de Tarefas Gamificada</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body {
+            box-sizing: border-box;
+        }
+        
+        @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&display=swap');
+        
+        .military-font { font-family: 'Orbitron', monospace; }
+        
+        .rank-badge {
+            background: linear-gradient(135deg, #1f2937 0%, #374151 100%);
+            border: 2px solid #fbbf24;
+            box-shadow: 0 0 20px rgba(251, 191, 36, 0.3);
+        }
+        
+        .xp-bar {
+            background: linear-gradient(90deg, #059669 0%, #10b981 50%, #34d399 100%);
+            box-shadow: 0 0 10px rgba(16, 185, 129, 0.5);
+        }
+        
+        .mission-card {
+            background: linear-gradient(135deg, #1e293b 0%, #334155 100%);
+            border: 1px solid #475569;
+        }
+        
+        .task-item {
+            background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+            border-left: 4px solid #3b82f6;
+        }
+        
+        .combo-flame {
+            animation: flame 1.5s ease-in-out infinite alternate;
+        }
+        
+        @keyframes flame {
+            0% { transform: scale(1) rotate(-2deg); }
+            100% { transform: scale(1.1) rotate(2deg); }
+        }
+        
+        .pulse-glow {
+            animation: pulse-glow 2s ease-in-out infinite;
+        }
+        
+        @keyframes pulse-glow {
+            0%, 100% { box-shadow: 0 0 20px rgba(59, 130, 246, 0.5); }
+            50% { box-shadow: 0 0 30px rgba(59, 130, 246, 0.8); }
+        }
+
+        .reset-danger {
+            background: linear-gradient(135deg, #dc2626 0%, #991b1b 100%);
+            animation: pulse-danger 2s ease-in-out infinite;
+        }
+
+        @keyframes pulse-danger {
+            0%, 100% { box-shadow: 0 0 20px rgba(220, 38, 38, 0.3); }
+            50% { box-shadow: 0 0 30px rgba(220, 38, 38, 0.6); }
+        }
+
+        .modal-backdrop {
+            backdrop-filter: blur(5px);
+        }
+
+        .shake {
+            animation: shake 0.5s ease-in-out;
+        }
+
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-5px); }
+            75% { transform: translateX(5px); }
+        }
+
+        .emoji-btn.selected {
+            background: #2563eb !important;
+            transform: scale(1.1);
+        }
+    </style>
+</head>
+<body class="bg-gray-900 text-white min-h-screen">
+    <!-- Login Screen -->
+    <div id="loginScreen" class="min-h-screen flex items-center justify-center bg-gradient-to-br from-gray-900 via-blue-900 to-gray-900">
+        <div class="bg-gray-800 p-8 rounded-lg shadow-2xl border border-gray-700 max-w-md w-full mx-4">
+            <div class="text-center mb-8">
+                <h1 class="military-font text-4xl font-bold text-yellow-400 mb-2">⚔️ TASKFORCE</h1>
+                <p class="text-gray-300">Sistema de Missões Gamificado</p>
+            </div>
+            
+            <!-- Login Form -->
+            <div id="loginForm" class="space-y-4">
+                <div>
+                    <label class="block text-sm font-medium text-gray-300 mb-2">Nick de Usuário</label>
+                    <input type="text" id="loginUsername" class="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-md text-white focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="Digite seu nick">
+                </div>
+                
+                <div>
+                    <label class="block text-sm font-medium text-gray-300 mb-2">Senha</label>
+                    <input type="password" id="loginPassword" class="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-md text-white focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="Digite sua senha">
+                </div>
+                
+                <button onclick="login()" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-4 rounded-md transition duration-300 military-font">
+                    🎖️ ENTRAR EM SERVIÇO
+                </button>
+                
+                <div class="text-center">
+                    <button onclick="showRegister()" class="text-yellow-400 hover:text-yellow-300 text-sm underline">
+                        Não tem conta? Cadastre-se aqui
+                    </button>
+                </div>
+            </div>
+
+            <!-- Register Form -->
+            <div id="registerForm" class="space-y-4 hidden">
+                <div class="text-center mb-4">
+                    <h2 class="military-font text-xl font-bold text-yellow-400">📝 ALISTAMENTO</h2>
+                    <p class="text-sm text-gray-300">Preencha seus dados para se alistar</p>
+                </div>
+
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-300 mb-2">Nome Completo</label>
+                        <input type="text" id="regName" class="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-md text-white focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="Seu nome">
+                    </div>
+                    
+                    <div>
+                        <label class="block text-sm font-medium text-gray-300 mb-2">Idade</label>
+                        <input type="number" id="regAge" min="16" max="99" class="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-md text-white focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="25">
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-300 mb-2">Peso (kg)</label>
+                        <input type="number" id="regWeight" min="30" max="300" class="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-md text-white focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="70">
+                    </div>
+                    
+                    <div>
+                        <label class="block text-sm font-medium text-gray-300 mb-2">Profissão</label>
+                        <input type="text" id="regProfession" class="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-md text-white focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="Desenvolvedor">
+                    </div>
+                </div>
+
+                <div>
+                    <label class="block text-sm font-medium text-gray-300 mb-2">Nick de Usuário</label>
+                    <input type="text" id="regUsername" class="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-md text-white focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="Escolha um nick único">
+                </div>
+                
+                <div>
+                    <label class="block text-sm font-medium text-gray-300 mb-2">Senha</label>
+                    <input type="password" id="regPassword" class="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-md text-white focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="Crie uma senha">
+                </div>
+
+                <div>
+                    <label class="block text-sm font-medium text-gray-300 mb-2">Confirmar Senha</label>
+                    <input type="password" id="regConfirmPassword" class="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-md text-white focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="Confirme sua senha">
+                </div>
+                
+                <button onclick="register()" class="w-full bg-green-600 hover:bg-green-700 text-white font-bold py-3 px-4 rounded-md transition duration-300 military-font">
+                    🎖️ COMPLETAR ALISTAMENTO
+                </button>
+                
+                <div class="text-center">
+                    <button onclick="showLogin()" class="text-yellow-400 hover:text-yellow-300 text-sm underline">
+                        Já tem conta? Faça login
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Dashboard -->
+    <div id="dashboard" class="hidden">
+        <!-- Header -->
+        <header class="bg-gray-800 border-b border-gray-700 p-4">
+            <div class="max-w-7xl mx-auto flex justify-between items-center">
+                <div class="flex items-center space-x-4">
+                    <h1 class="military-font text-2xl font-bold text-yellow-400">⚔️ TASKFORCE</h1>
+                    <div class="rank-badge px-4 py-2 rounded-full">
+                        <span class="military-font text-sm" id="currentRank">🔰 RECRUTA</span>
+                    </div>
+                </div>
+                
+                <div class="flex items-center space-x-4">
+                    <div class="text-right">
+                        <p class="text-sm text-gray-300">Soldado</p>
+                        <p class="military-font text-yellow-400" id="userDisplay">OPERADOR-001</p>
+                        <p class="text-xs" id="prestigeDisplay">🥉 BRONZE I</p>
+                    </div>
+                    <button onclick="showProfile()" class="bg-gray-700 hover:bg-gray-600 px-4 py-2 rounded-md transition duration-300">
+                        👤 Perfil
+                    </button>
+                    <button onclick="showHistory()" class="bg-purple-600 hover:bg-purple-700 px-4 py-2 rounded-md transition duration-300">
+                        📜 Histórico
+                    </button>
+                    <button onclick="showResetMenu()" class="bg-orange-600 hover:bg-orange-700 px-4 py-2 rounded-md transition duration-300">
+                        🔄 Reset
+                    </button>
+                    <button onclick="logout()" class="bg-red-600 hover:bg-red-700 px-4 py-2 rounded-md transition duration-300">
+                        🚪 Sair
+                    </button>
+                </div>
+            </div>
+        </header>
+
+        <div class="max-w-7xl mx-auto p-6 grid grid-cols-1 lg:grid-cols-3 gap-6">
+            <!-- Left Column - Stats & Missions -->
+            <div class="space-y-6">
+                <!-- XP Progress -->
+                <div class="bg-gray-800 rounded-lg p-6 border border-gray-700">
+                    <h3 class="military-font text-lg font-bold text-yellow-400 mb-4">📊 PROGRESSO MENSAL</h3>
+                    
+                    <div class="mb-4">
+                        <div class="flex justify-between text-sm mb-2">
+                            <span>XP: <span id="currentXP">0</span></span>
+                            <span>Próxima Patente: <span id="nextXP">5</span></span>
+                        </div>
+                        <div class="w-full bg-gray-700 rounded-full h-3">
+                            <div class="xp-bar h-3 rounded-full transition-all duration-500" id="xpBar" style="width: 0%"></div>
+                        </div>
+                    </div>
+                    
+                    <div class="grid grid-cols-2 gap-4 text-center">
+                        <div class="bg-gray-700 rounded-lg p-3">
+                            <div class="text-2xl font-bold text-green-400" id="tasksCompleted">0</div>
+                            <div class="text-xs text-gray-300">Missões Completas</div>
+                        </div>
+                        <div class="bg-gray-700 rounded-lg p-3">
+                            <div class="text-2xl font-bold text-orange-400 flex items-center justify-center">
+                                <span id="comboCount">0</span>
+                                <span class="combo-flame ml-1">🔥</span>
+                            </div>
+                            <div class="text-xs text-gray-300">Combo Diário</div>
+                        </div>
+                    </div>
+                    
+                    <!-- Prestige Stats -->
+                    <div class="mt-4 bg-gray-700 rounded-lg p-4">
+                        <h4 class="military-font text-sm font-bold text-purple-400 mb-2">🏆 ESTATÍSTICAS DE PRESTÍGIO</h4>
+                        <div class="grid grid-cols-2 gap-2 text-xs">
+                            <div class="text-center">
+                                <div class="text-lg font-bold text-purple-400" id="totalResets">0</div>
+                                <div class="text-gray-300">Total Resets</div>
+                            </div>
+                            <div class="text-center">
+                                <div class="text-lg font-bold text-blue-400" id="lifetimeTasks">0</div>
+                                <div class="text-gray-300">Missões Totais</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Daily Missions -->
+                <div class="bg-gray-800 rounded-lg p-6 border border-gray-700">
+                    <h3 class="military-font text-lg font-bold text-yellow-400 mb-4">🎯 MISSÕES DIÁRIAS</h3>
+                    
+                    <div class="space-y-3">
+                        <div class="mission-card p-3 rounded-lg">
+                            <div class="flex justify-between items-center">
+                                <span class="text-sm">Complete 3 tarefas hoje</span>
+                                <span class="text-xs bg-blue-600 px-2 py-1 rounded-full">+2 XP</span>
+                            </div>
+                            <div class="w-full bg-gray-600 rounded-full h-2 mt-2">
+                                <div class="bg-blue-500 h-2 rounded-full transition-all duration-300" id="mission1Progress" style="width: 0%"></div>
+                            </div>
+                        </div>
+                        
+                        <div class="mission-card p-3 rounded-lg">
+                            <div class="flex justify-between items-center">
+                                <span class="text-sm">Complete 1 tarefa antes das 10h</span>
+                                <span class="text-xs bg-green-600 px-2 py-1 rounded-full">+1 XP</span>
+                            </div>
+                            <div class="w-full bg-gray-600 rounded-full h-2 mt-2">
+                                <div class="bg-green-500 h-2 rounded-full transition-all duration-300" id="mission2Progress" style="width: 0%"></div>
+                            </div>
+                        </div>
+                        
+                        <div class="mission-card p-3 rounded-lg">
+                            <div class="flex justify-between items-center">
+                                <span class="text-sm">Mantenha o combo por 5 dias</span>
+                                <span class="text-xs bg-purple-600 px-2 py-1 rounded-full">+5 XP</span>
+                            </div>
+                            <div class="w-full bg-gray-600 rounded-full h-2 mt-2">
+                                <div class="bg-purple-500 h-2 rounded-full transition-all duration-300" id="mission3Progress" style="width: 0%"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Search Profile -->
+                <div class="bg-gray-800 rounded-lg p-6 border border-gray-700">
+                    <h3 class="military-font text-lg font-bold text-yellow-400 mb-4">🔍 BUSCAR OPERADOR</h3>
+                    <div class="flex space-x-2">
+                        <input type="text" id="searchId" placeholder="ID do Operador" class="flex-1 px-3 py-2 bg-gray-700 border border-gray-600 rounded-md text-white focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        <button onclick="searchProfile()" class="bg-blue-600 hover:bg-blue-700 px-4 py-2 rounded-md transition duration-300">
+                            🔍
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Middle Column - Task Management -->
+            <div class="space-y-6">
+                <!-- Add Task -->
+                <div class="bg-gray-800 rounded-lg p-6 border border-gray-700">
+                    <h3 class="military-font text-lg font-bold text-yellow-400 mb-4">➕ NOVA MISSÃO</h3>
+                    
+                    <div class="space-y-4">
+                        <input type="text" id="taskTitle" placeholder="Título da missão" class="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-md text-white focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        
+                        <div>
+                            <label class="block text-sm font-medium text-gray-300 mb-2">📅 Data da Missão</label>
+                            <div class="flex space-x-2">
+                                <input type="date" id="taskDate" class="flex-1 px-3 py-2 bg-gray-700 border border-gray-600 rounded-md text-white focus:outline-none focus:ring-2 focus:ring-blue-500">
+                                <button type="button" onclick="setToday()" class="bg-blue-600 hover:bg-blue-700 px-3 py-2 rounded-md text-sm transition duration-300">Hoje</button>
+                            </div>
+                        </div>
+                        
+                        <div>
+                            <label class="block text-sm font-medium text-gray-300 mb-2">🏷️ Categoria</label>
+                            <select id="taskCategory" onchange="toggleCustomCategory()" class="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-md text-white focus:outline-none focus:ring-2 focus:ring-blue-500">
+                                <option value="trabalho">💼 Trabalho</option>
+                                <option value="pessoal">🏠 Pessoal</option>
+                                <option value="estudos">📚 Estudos</option>
+                                <option value="saude">💪 Saúde</option>
+                                <option value="custom">✨ Nova Categoria</option>
+                            </select>
+                        </div>
+                        
+                        <div id="customCategoryDiv" class="hidden">
+                            <input type="text" id="customCategory" placeholder="Digite o nome da nova categoria" class="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-md text-white focus:outline-none focus:ring-2 focus:ring-blue-500 mb-2">
+                            <div>
+                                <label class="block text-sm font-medium text-gray-300 mb-2">Escolha um emoji:</label>
+                                <div class="flex flex-wrap gap-2">
+                                    <button type="button" onclick="selectEmoji('🎯')" class="emoji-btn bg-gray-600 hover:bg-gray-500 px-2 py-1 rounded text-lg transition duration-300">🎯</button>
+                                    <button type="button" onclick="selectEmoji('🚀')" class="emoji-btn bg-gray-600 hover:bg-gray-500 px-2 py-1 rounded text-lg transition duration-300">🚀</button>
+                                    <button type="button" onclick="selectEmoji('💡')" class="emoji-btn bg-gray-600 hover:bg-gray-500 px-2 py-1 rounded text-lg transition duration-300">💡</button>
+                                    <button type="button" onclick="selectEmoji('🎨')" class="emoji-btn bg-gray-600 hover:bg-gray-500 px-2 py-1 rounded text-lg transition duration-300">🎨</button>
+                                    <button type="button" onclick="selectEmoji('🏃')" class="emoji-btn bg-gray-600 hover:bg-gray-500 px-2 py-1 rounded text-lg transition duration-300">🏃</button>
+                                    <button type="button" onclick="selectEmoji('🍎')" class="emoji-btn bg-gray-600 hover:bg-gray-500 px-2 py-1 rounded text-lg transition duration-300">🍎</button>
+                                    <button type="button" onclick="selectEmoji('🎵')" class="emoji-btn bg-gray-600 hover:bg-gray-500 px-2 py-1 rounded text-lg transition duration-300">🎵</button>
+                                    <button type="button" onclick="selectEmoji('🌟')" class="emoji-btn bg-gray-600 hover:bg-gray-500 px-2 py-1 rounded text-lg transition duration-300">🌟</button>
+                                </div>
+                                <input type="hidden" id="selectedEmoji" value="🎯">
+                            </div>
+                        </div>
+                        
+                        <button onclick="addTask()" class="w-full bg-green-600 hover:bg-green-700 text-white font-bold py-3 px-4 rounded-md transition duration-300 military-font">
+                            🎖️ REGISTRAR MISSÃO
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Task List -->
+                <div class="bg-gray-800 rounded-lg p-6 border border-gray-700">
+                    <h3 class="military-font text-lg font-bold text-yellow-400 mb-4">📋 MISSÕES ATIVAS</h3>
+                    
+                    <!-- Category Filter -->
+                    <div class="flex flex-wrap gap-2 mb-4" id="categoryFilters">
+                        <button onclick="filterTasks('all')" class="filter-btn bg-blue-600 hover:bg-blue-700 px-3 py-1 rounded-full text-xs transition duration-300">Todas</button>
+                        <button onclick="filterTasks('today')" class="filter-btn bg-gray-600 hover:bg-green-700 px-3 py-1 rounded-full text-xs transition duration-300">📅 Hoje</button>
+                        <button onclick="filterTasks('future')" class="filter-btn bg-gray-600 hover:bg-purple-700 px-3 py-1 rounded-full text-xs transition duration-300">🔮 Futuras</button>
+                        <button onclick="filterTasks('trabalho')" class="filter-btn bg-gray-600 hover:bg-gray-700 px-3 py-1 rounded-full text-xs transition duration-300">💼 Trabalho</button>
+                        <button onclick="filterTasks('pessoal')" class="filter-btn bg-gray-600 hover:bg-gray-700 px-3 py-1 rounded-full text-xs transition duration-300">🏠 Pessoal</button>
+                        <button onclick="filterTasks('estudos')" class="filter-btn bg-gray-600 hover:bg-gray-700 px-3 py-1 rounded-full text-xs transition duration-300">📚 Estudos</button>
+                        <button onclick="filterTasks('saude')" class="filter-btn bg-gray-600 hover:bg-gray-700 px-3 py-1 rounded-full text-xs transition duration-300">💪 Saúde</button>
+                    </div>
+                    
+                    <div id="taskList" class="space-y-3">
+                        <!-- Tasks will be added here dynamically -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- Right Column - Rankings & Profile -->
+            <div class="space-y-6">
+                <!-- Rank System -->
+                <div class="bg-gray-800 rounded-lg p-6 border border-gray-700">
+                    <h3 class="military-font text-lg font-bold text-yellow-400 mb-4">🏆 SISTEMA DE PATENTES</h3>
+                    
+                    <div class="space-y-2 text-sm">
+                        <div class="flex justify-between items-center p-2 rounded" id="rank-recruta">
+                            <span>🔰 Recruta</span>
+                            <span class="text-gray-400">0 XP</span>
+                        </div>
+                        <div class="flex justify-between items-center p-2 rounded" id="rank-soldado">
+                            <span>🎖️ Soldado</span>
+                            <span class="text-gray-400">5 XP</span>
+                        </div>
+                        <div class="flex justify-between items-center p-2 rounded" id="rank-cabo">
+                            <span>⭐ Cabo</span>
+                            <span class="text-gray-400">10 XP</span>
+                        </div>
+                        <div class="flex justify-between items-center p-2 rounded" id="rank-sargento">
+                            <span>🎗️ Sargento</span>
+                            <span class="text-gray-400">20 XP</span>
+                        </div>
+                        <div class="flex justify-between items-center p-2 rounded" id="rank-subtenente">
+                            <span>🏅 Subtenente</span>
+                            <span class="text-gray-400">35 XP</span>
+                        </div>
+                        <div class="flex justify-between items-center p-2 rounded" id="rank-tenente">
+                            <span>🎖️ Tenente</span>
+                            <span class="text-gray-400">50 XP</span>
+                        </div>
+                        <div class="flex justify-between items-center p-2 rounded" id="rank-capitao">
+                            <span>👑 Capitão</span>
+                            <span class="text-gray-400">75 XP</span>
+                        </div>
+                        <div class="flex justify-between items-center p-2 rounded" id="rank-major">
+                            <span>🌟 Major</span>
+                            <span class="text-gray-400">100 XP</span>
+                        </div>
+                        <div class="flex justify-between items-center p-2 rounded" id="rank-coronel">
+                            <span>⚡ Coronel</span>
+                            <span class="text-gray-400">130 XP</span>
+                        </div>
+                        <div class="flex justify-between items-center p-2 rounded" id="rank-general">
+                            <span>👨‍✈️ General</span>
+                            <span class="text-gray-400">160+ XP</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Achievements -->
+                <div class="bg-gray-800 rounded-lg p-6 border border-gray-700">
+                    <h3 class="military-font text-lg font-bold text-yellow-400 mb-4">🏅 CONQUISTAS</h3>
+                    
+                    <div class="grid grid-cols-2 gap-3">
+                        <div class="bg-gray-700 p-3 rounded-lg text-center opacity-50" id="achievement-first">
+                            <div class="text-2xl mb-1">🥇</div>
+                            <div class="text-xs">Primeira Missão</div>
+                        </div>
+                        <div class="bg-gray-700 p-3 rounded-lg text-center opacity-50" id="achievement-streak">
+                            <div class="text-2xl mb-1">🔥</div>
+                            <div class="text-xs">Combo 5 Dias</div>
+                        </div>
+                        <div class="bg-gray-700 p-3 rounded-lg text-center opacity-50" id="achievement-hundred">
+                            <div class="text-2xl mb-1">💯</div>
+                            <div class="text-xs">100 Missões</div>
+                        </div>
+                        <div class="bg-gray-700 p-3 rounded-lg text-center opacity-50" id="achievement-general">
+                            <div class="text-2xl mb-1">👨‍✈️</div>
+                            <div class="text-xs">General</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Reset Menu Modal -->
+    <div id="resetModal" class="hidden fixed inset-0 bg-black bg-opacity-75 modal-backdrop flex items-center justify-center z-50">
+        <div class="bg-gray-800 rounded-lg p-8 max-w-md w-full mx-4 border border-gray-700">
+            <div class="text-center mb-6">
+                <h3 class="military-font text-2xl font-bold text-orange-400 mb-2">🔄 CENTRO DE RESET</h3>
+                <p class="text-gray-300 text-sm">Escolha o tipo de reset que deseja realizar</p>
+            </div>
+            
+            <div class="space-y-4">
+                <!-- Reset Tasks Only -->
+                <button onclick="showResetConfirm('tasks')" class="w-full bg-yellow-600 hover:bg-yellow-700 text-black font-bold py-3 px-4 rounded-md transition duration-300 military-font">
+                    📋 RESET APENAS TAREFAS
+                </button>
+                <p class="text-xs text-gray-400 text-center -mt-2">Remove todas as tarefas, mantém XP e patente</p>
+                
+                <!-- Reset Progress -->
+                <button onclick="showResetConfirm('progress')" class="w-full bg-orange-600 hover:bg-orange-700 text-white font-bold py-3 px-4 rounded-md transition duration-300 military-font">
+                    📊 RESET PROGRESSO
+                </button>
+                <p class="text-xs text-gray-400 text-center -mt-2">Zera XP, patente e combo, mantém tarefas</p>
+                
+                <!-- Reset Everything -->
+                <button onclick="showResetConfirm('everything')" class="w-full reset-danger text-white font-bold py-3 px-4 rounded-md transition duration-300 military-font">
+                    💥 RESET COMPLETO
+                </button>
+                <p class="text-xs text-gray-400 text-center -mt-2">⚠️ ATENÇÃO: Remove TUDO exceto dados pessoais</p>
+                
+                <!-- Reset Account -->
+                <button onclick="showResetConfirm('account')" class="w-full bg-red-800 hover:bg-red-900 text-white font-bold py-3 px-4 rounded-md transition duration-300 military-font">
+                    🗑️ DELETAR CONTA
+                </button>
+                <p class="text-xs text-red-400 text-center -mt-2">⚠️ PERIGO: Remove conta permanentemente</p>
+            </div>
+            
+            <button onclick="closeResetMenu()" class="w-full mt-6 bg-gray-600 hover:bg-gray-700 text-white py-2 px-4 rounded-md transition duration-300">
+                Cancelar
+            </button>
+        </div>
+    </div>
+
+    <!-- Reset Confirmation Modal -->
+    <div id="resetConfirmModal" class="hidden fixed inset-0 bg-black bg-opacity-75 modal-backdrop flex items-center justify-center z-50">
+        <div class="bg-gray-800 rounded-lg p-8 max-w-md w-full mx-4 border border-red-500 shake">
+            <div class="text-center mb-6">
+                <h3 class="military-font text-2xl font-bold text-red-400 mb-2" id="confirmTitle">⚠️ CONFIRMAÇÃO</h3>
+                <p class="text-gray-300 text-sm" id="confirmMessage">Tem certeza que deseja continuar?</p>
+            </div>
+            
+            <div class="bg-red-900 border border-red-500 rounded-lg p-4 mb-6">
+                <p class="text-red-200 text-sm font-bold text-center" id="confirmWarning">
+                    Esta ação não pode ser desfeita!
+                </p>
+            </div>
+            
+            <div class="space-y-3">
+                <div>
+                    <label class="block text-sm font-medium text-gray-300 mb-2">Digite "CONFIRMAR" para prosseguir:</label>
+                    <input type="text" id="confirmInput" class="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-md text-white focus:outline-none focus:ring-2 focus:ring-red-500" placeholder="CONFIRMAR">
+                </div>
+                
+                <button onclick="executeReset()" class="w-full bg-red-600 hover:bg-red-700 text-white font-bold py-3 px-4 rounded-md transition duration-300 military-font">
+                    🔥 EXECUTAR RESET
+                </button>
+                
+                <button onclick="closeResetConfirm()" class="w-full bg-gray-600 hover:bg-gray-700 text-white py-2 px-4 rounded-md transition duration-300">
+                    Cancelar
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- History Modal -->
+    <div id="historyModal" class="hidden fixed inset-0 bg-black bg-opacity-75 modal-backdrop flex items-center justify-center z-50">
+        <div class="bg-gray-800 rounded-lg p-8 max-w-4xl w-full mx-4 border border-gray-700 max-h-[90vh] overflow-y-auto">
+            <div class="text-center mb-6">
+                <h3 class="military-font text-3xl font-bold text-purple-400 mb-2">📜 HISTÓRICO DE PRESTÍGIO</h3>
+                <p class="text-gray-300">Sua jornada completa através dos resets</p>
+            </div>
+            
+            <!-- Prestige Progress -->
+            <div class="bg-gray-700 rounded-lg p-6 mb-6">
+                <h4 class="military-font text-xl font-bold text-yellow-400 mb-4">🏆 PROGRESSO ATUAL</h4>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div class="text-center">
+                        <div class="text-3xl font-bold mb-2" id="historyPrestigeRank">🥉 BRONZE I</div>
+                        <div class="text-sm text-gray-300">Patente de Prestígio</div>
+                    </div>
+                    <div class="text-center">
+                        <div class="text-3xl font-bold text-purple-400 mb-2" id="historyTotalResets">0</div>
+                        <div class="text-sm text-gray-300">Total de Resets</div>
+                    </div>
+                    <div class="text-center">
+                        <div class="text-3xl font-bold text-blue-400 mb-2" id="historyLifetimeXP">0</div>
+                        <div class="text-sm text-gray-300">XP Total Acumulado</div>
+                    </div>
+                </div>
+                
+                <!-- Next Prestige Progress -->
+                <div class="mt-4">
+                    <div class="flex justify-between text-sm mb-2">
+                        <span>Próxima Patente:</span>
+                        <span id="nextPrestigeInfo">🥉 BRONZE II (10 resets)</span>
+                    </div>
+                    <div class="w-full bg-gray-600 rounded-full h-3">
+                        <div class="bg-purple-500 h-3 rounded-full transition-all duration-500" id="prestigeProgressBar" style="width: 0%"></div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Records -->
+            <div class="bg-gray-700 rounded-lg p-6 mb-6">
+                <h4 class="military-font text-xl font-bold text-yellow-400 mb-4">📊 RECORDES PESSOAIS</h4>
+                <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+                    <div class="text-center bg-gray-600 rounded-lg p-3">
+                        <div class="text-2xl font-bold text-green-400" id="recordLifetimeTasks">0</div>
+                        <div class="text-xs text-gray-300">Missões Totais</div>
+                    </div>
+                    <div class="text-center bg-gray-600 rounded-lg p-3">
+                        <div class="text-2xl font-bold text-orange-400" id="recordMaxCombo">0</div>
+                        <div class="text-xs text-gray-300">Maior Combo</div>
+                    </div>
+                    <div class="text-center bg-gray-600 rounded-lg p-3">
+                        <div class="text-2xl font-bold text-yellow-400" id="recordHighestRank">🔰</div>
+                        <div class="text-xs text-gray-300">Maior Patente</div>
+                    </div>
+                    <div class="text-center bg-gray-600 rounded-lg p-3">
+                        <div class="text-2xl font-bold text-blue-400" id="recordLifetimeXP">0</div>
+                        <div class="text-xs text-gray-300">XP Acumulado</div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Reset History -->
+            <div class="bg-gray-700 rounded-lg p-6">
+                <h4 class="military-font text-xl font-bold text-yellow-400 mb-4">🔄 HISTÓRICO DE RESETS</h4>
+                <div id="resetHistoryList" class="space-y-3 max-h-60 overflow-y-auto">
+                    <div class="text-center text-gray-400 py-8">
+                        Nenhum reset realizado ainda
+                    </div>
+                </div>
+            </div>
+            
+            <button onclick="closeHistory()" class="w-full mt-6 bg-purple-600 hover:bg-purple-700 text-white py-3 px-4 rounded-md transition duration-300 military-font">
+                Fechar Histórico
+            </button>
+        </div>
+    </div>
+
+    <!-- Profile Modal -->
+    <div id="profileModal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+        <div class="bg-gray-800 rounded-lg p-8 max-w-md w-full mx-4 border border-gray-700 max-h-[90vh] overflow-y-auto">
+            <div class="text-center">
+                <h3 class="military-font text-2xl font-bold text-yellow-400 mb-6">👤 PERFIL DO OPERADOR</h3>
+                
+                <div class="space-y-4">
+                    <div class="bg-gray-700 p-4 rounded-lg">
+                        <div class="text-sm text-gray-300">Nome</div>
+                        <div class="text-lg font-bold" id="profileName">OPERADOR-001</div>
+                    </div>
+                    
+                    <div class="bg-gray-700 p-4 rounded-lg">
+                        <div class="text-sm text-gray-300">ID de Registro</div>
+                        <div class="text-lg font-bold text-blue-400" id="profileId">001</div>
+                    </div>
+                    
+                    <div class="bg-gray-700 p-4 rounded-lg">
+                        <div class="text-sm text-gray-300">Patente Atual</div>
+                        <div class="text-lg font-bold text-yellow-400" id="profileRank">🔰 RECRUTA</div>
+                    </div>
+                    
+                    <div class="bg-gray-700 p-4 rounded-lg">
+                        <div class="text-sm text-gray-300">Idade</div>
+                        <div class="text-lg font-bold" id="profileAge">25 anos</div>
+                    </div>
+                    
+                    <div class="bg-gray-700 p-4 rounded-lg">
+                        <div class="text-sm text-gray-300">Peso</div>
+                        <div class="text-lg font-bold" id="profileWeight">70 kg</div>
+                    </div>
+                    
+                    <div class="bg-gray-700 p-4 rounded-lg">
+                        <div class="text-sm text-gray-300">Profissão</div>
+                        <div class="text-lg font-bold" id="profileJob">Desenvolvedor</div>
+                    </div>
+                    
+                    <div class="bg-gray-700 p-4 rounded-lg">
+                        <div class="text-sm text-gray-300">XP Total</div>
+                        <div class="w-full bg-gray-600 rounded-full h-3 mt-2">
+                            <div class="xp-bar h-3 rounded-full" id="profileXPBar" style="width: 0%"></div>
+                        </div>
+                        <div class="text-sm mt-1"><span id="profileXP">0</span> XP</div>
+                    </div>
+                </div>
+                
+                <div class="flex space-x-3 mt-6">
+                    <button onclick="closeProfile()" class="flex-1 bg-blue-600 hover:bg-blue-700 px-6 py-2 rounded-md transition duration-300">
+                        Fechar
+                    </button>
+                    <button onclick="logout()" class="flex-1 bg-red-600 hover:bg-red-700 px-6 py-2 rounded-md transition duration-300">
+                        🚪 Sair
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Game State
+        let gameState = {
+            user: {
+                name: '',
+                username: '',
+                password: '',
+                id: '001',
+                age: 25,
+                weight: 70,
+                profession: 'Desenvolvedor',
+                xp: 0,
+                tasksCompleted: 0,
+                combo: 0,
+                lastTaskDate: null,
+                rank: 'recruta',
+                // Prestígio System
+                totalResets: 0,
+                prestigeRank: 'bronze1',
+                totalLifetimeXP: 0,
+                totalLifetimeTasks: 0,
+                maxComboEver: 0,
+                highestRankEver: 'recruta',
+                // Sistema de Reset Diário
+                lastDailyReset: null
+            },
+            tasks: [],
+            currentFilter: 'all',
+            currentUser: null,
+            resetType: null,
+            // Histórico de Resets
+            resetHistory: [],
+            // Categorias personalizadas
+            customCategories: {}
+        };
+
+        // Rank System
+        const ranks = [
+            { name: 'recruta', display: '🔰 RECRUTA', xp: 0 },
+            { name: 'soldado', display: '🎖️ SOLDADO', xp: 5 },
+            { name: 'cabo', display: '⭐ CABO', xp: 10 },
+            { name: 'sargento', display: '🎗️ SARGENTO', xp: 20 },
+            { name: 'subtenente', display: '🏅 SUBTENENTE', xp: 35 },
+            { name: 'tenente', display: '🎖️ TENENTE', xp: 50 },
+            { name: 'capitao', display: '👑 CAPITÃO', xp: 75 },
+            { name: 'major', display: '🌟 MAJOR', xp: 100 },
+            { name: 'coronel', display: '⚡ CORONEL', xp: 130 },
+            { name: 'general', display: '👨‍✈️ GENERAL', xp: 160 }
+        ];
+
+        // Prestige Rank System
+        const prestigeRanks = [
+            // Bronze Tier
+            { name: 'bronze1', display: '🥉 BRONZE I', resets: 0, color: '#CD7F32' },
+            { name: 'bronze2', display: '🥉 BRONZE II', resets: 10, color: '#CD7F32' },
+            { name: 'bronze3', display: '🥉 BRONZE III', resets: 25, color: '#CD7F32' },
+            
+            // Prata Tier
+            { name: 'prata1', display: '🥈 PRATA I', resets: 45, color: '#C0C0C0' },
+            { name: 'prata2', display: '🥈 PRATA II', resets: 70, color: '#C0C0C0' },
+            { name: 'prata3', display: '🥈 PRATA III', resets: 100, color: '#C0C0C0' },
+            
+            // Ouro Tier
+            { name: 'ouro1', display: '🥇 OURO I', resets: 135, color: '#FFD700' },
+            { name: 'ouro2', display: '🥇 OURO II', resets: 175, color: '#FFD700' },
+            { name: 'ouro3', display: '🥇 OURO III', resets: 220, color: '#FFD700' },
+            
+            // Diamante Tier
+            { name: 'diamante1', display: '💎 DIAMANTE I', resets: 270, color: '#B9F2FF' },
+            { name: 'diamante2', display: '💎 DIAMANTE II', resets: 325, color: '#B9F2FF' },
+            { name: 'diamante3', display: '💎 DIAMANTE III', resets: 385, color: '#B9F2FF' },
+            
+            // Esmeralda Tier
+            { name: 'esmeralda1', display: '💚 ESMERALDA I', resets: 450, color: '#50C878' },
+            { name: 'esmeralda2', display: '💚 ESMERALDA II', resets: 520, color: '#50C878' },
+            { name: 'esmeralda3', display: '💚 ESMERALDA III', resets: 595, color: '#50C878' },
+            
+            // Rubi Tier
+            { name: 'rubi1', display: '❤️ RUBI I', resets: 675, color: '#E0115F' },
+            { name: 'rubi2', display: '❤️ RUBI II', resets: 760, color: '#E0115F' },
+            { name: 'rubi3', display: '❤️ RUBI III', resets: 850, color: '#E0115F' },
+            
+            // Safira Tier
+            { name: 'safira1', display: '💙 SAFIRA I', resets: 945, color: '#0F52BA' },
+            { name: 'safira2', display: '💙 SAFIRA II', resets: 1045, color: '#0F52BA' },
+            { name: 'safira3', display: '💙 SAFIRA III', resets: 1150, color: '#0F52BA' },
+            
+            // Ametista Tier
+            { name: 'ametista1', display: '💜 AMETISTA I', resets: 1260, color: '#9966CC' },
+            { name: 'ametista2', display: '💜 AMETISTA II', resets: 1375, color: '#9966CC' },
+            { name: 'ametista3', display: '💜 AMETISTA III', resets: 1495, color: '#9966CC' },
+            
+            // Topázio Tier
+            { name: 'topazio1', display: '🧡 TOPÁZIO I', resets: 1620, color: '#FFC87C' },
+            { name: 'topazio2', display: '🧡 TOPÁZIO II', resets: 1750, color: '#FFC87C' },
+            { name: 'topazio3', display: '🧡 TOPÁZIO III', resets: 1885, color: '#FFC87C' },
+            
+            // Lendário
+            { name: 'lendario', display: '🌟 LENDÁRIO', resets: 2025, color: '#FFD700' }
+        ];
+
+        // Category Icons
+        const categoryIcons = {
+            trabalho: '💼',
+            pessoal: '🏠',
+            estudos: '📚',
+            saude: '💪'
+        };
+
+        // Funções para categorias personalizadas
+        function toggleCustomCategory() {
+            const categorySelect = document.getElementById('taskCategory');
+            const customDiv = document.getElementById('customCategoryDiv');
+            
+            if (categorySelect.value === 'custom') {
+                customDiv.classList.remove('hidden');
+            } else {
+                customDiv.classList.add('hidden');
+            }
+        }
+
+        function selectEmoji(emoji) {
+            document.getElementById('selectedEmoji').value = emoji;
+            
+            // Visual feedback
+            document.querySelectorAll('.emoji-btn').forEach(btn => {
+                btn.classList.remove('selected');
+            });
+            event.target.classList.add('selected');
+        }
+
+        function setToday() {
+            const today = new Date().toISOString().split('T')[0];
+            document.getElementById('taskDate').value = today;
+        }
+
+        // Sistema de Reset Diário Automático
+        function checkDailyReset() {
+            const now = new Date();
+            const today = now.toDateString();
+            
+            if (!gameState.user.lastDailyReset || gameState.user.lastDailyReset !== today) {
+                // É um novo dia, fazer reset das tarefas do dia anterior
+                if (gameState.user.lastDailyReset) {
+                    performDailyReset();
+                }
+                gameState.user.lastDailyReset = today;
+                saveGameState();
+            }
+            
+            // Agenda próximo reset para 23:59:59
+            scheduleNextDailyReset();
+        }
+
+        function performDailyReset() {
+            const yesterday = new Date();
+            yesterday.setDate(yesterday.getDate() - 1);
+            const yesterdayString = yesterday.toISOString().split('T')[0];
+            
+            // Remove tarefas não completadas do dia anterior
+            const tasksToRemove = gameState.tasks.filter(task => 
+                task.date === yesterdayString && !task.completed
+            );
+            
+            if (tasksToRemove.length > 0) {
+                gameState.tasks = gameState.tasks.filter(task => 
+                    !(task.date === yesterdayString && !task.completed)
+                );
+                
+                showDailyResetNotification(tasksToRemove.length);
+            }
+        }
+
+        function scheduleNextDailyReset() {
+            const now = new Date();
+            const tomorrow = new Date(now);
+            tomorrow.setDate(tomorrow.getDate() + 1);
+            tomorrow.setHours(0, 0, 0, 0); // Meia-noite
+            
+            const timeUntilReset = tomorrow.getTime() - now.getTime();
+            
+            setTimeout(() => {
+                checkDailyReset();
+                updateDisplay();
+                updateTaskList();
+            }, timeUntilReset);
+        }
+
+        function showDailyResetNotification(removedCount) {
+            const notification = document.createElement('div');
+            notification.className = 'fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-orange-600 text-white p-6 rounded-lg shadow-2xl z-50 military-font text-center max-w-md';
+            notification.innerHTML = `
+                <div class="text-2xl mb-2">🌅 NOVO DIA!</div>
+                <div class="text-sm mb-2">${removedCount} missão(ões) não completada(s) do dia anterior foi(ram) removida(s).</div>
+                <div class="text-xs text-orange-200">Foque nas missões de hoje, soldado!</div>
+            `;
+            document.body.appendChild(notification);
+            
+            setTimeout(() => {
+                document.body.removeChild(notification);
+            }, 4000);
+        }
+
+        // Inicialização
+        function initializeApp() {
+            // Define data de hoje como padrão
+            const today = new Date().toISOString().split('T')[0];
+            const taskDateInput = document.getElementById('taskDate');
+            if (taskDateInput) {
+                taskDateInput.value = today;
+            }
+            
+            // Verifica reset diário
+            checkDailyReset();
+        }
+
+        // Reset System
+        function showResetMenu() {
+            document.getElementById('resetModal').classList.remove('hidden');
+        }
+
+        function closeResetMenu() {
+            document.getElementById('resetModal').classList.add('hidden');
+        }
+
+        function showResetConfirm(type) {
+            gameState.resetType = type;
+            
+            const confirmTitle = document.getElementById('confirmTitle');
+            const confirmMessage = document.getElementById('confirmMessage');
+            const confirmWarning = document.getElementById('confirmWarning');
+            
+            switch(type) {
+                case 'tasks':
+                    confirmTitle.textContent = '📋 RESET DE TAREFAS';
+                    confirmMessage.textContent = 'Todas as suas tarefas (completas e pendentes) serão removidas. Seu XP, patente e conquistas serão mantidos.';
+                    confirmWarning.textContent = 'Suas tarefas serão perdidas permanentemente!';
+                    break;
+                    
+                case 'progress':
+                    confirmTitle.textContent = '📊 RESET DE PROGRESSO';
+                    confirmMessage.textContent = 'Seu XP, patente, combo e conquistas serão zerados. Suas tarefas atuais serão mantidas.';
+                    confirmWarning.textContent = 'Todo seu progresso será perdido!';
+                    break;
+                    
+                case 'everything':
+                    confirmTitle.textContent = '💥 RESET COMPLETO';
+                    confirmMessage.textContent = 'TUDO será removido: tarefas, XP, patente, combo e conquistas. Apenas seus dados pessoais (nome, idade, etc.) serão mantidos.';
+                    confirmWarning.textContent = 'ATENÇÃO: Você voltará ao estado inicial!';
+                    break;
+                    
+                case 'account':
+                    confirmTitle.textContent = '🗑️ DELETAR CONTA';
+                    confirmMessage.textContent = 'Sua conta será completamente removida do sistema. Todos os dados serão perdidos permanentemente.';
+                    confirmWarning.textContent = 'PERIGO: Esta ação é IRREVERSÍVEL!';
+                    break;
+            }
+            
+            document.getElementById('resetModal').classList.add('hidden');
+            document.getElementById('resetConfirmModal').classList.remove('hidden');
+            document.getElementById('confirmInput').value = '';
+        }
+
+        function closeResetConfirm() {
+            document.getElementById('resetConfirmModal').classList.add('hidden');
+            gameState.resetType = null;
+        }
+
+        function executeReset() {
+            const confirmInput = document.getElementById('confirmInput').value.trim().toUpperCase();
+            
+            if (confirmInput !== 'CONFIRMAR') {
+                alert('⚠️ Digite "CONFIRMAR" exatamente como mostrado!');
+                return;
+            }
+            
+            const type = gameState.resetType;
+            
+            switch(type) {
+                case 'tasks':
+                    // Reset apenas tarefas
+                    gameState.tasks = [];
+                    showResetSuccess('📋 Tarefas removidas com sucesso!', 'Seu progresso e patente foram mantidos.');
+                    break;
+                    
+                case 'progress':
+                    // Reset progresso
+                    gameState.user.xp = 0;
+                    gameState.user.tasksCompleted = 0;
+                    gameState.user.combo = 0;
+                    gameState.user.rank = 'recruta';
+                    gameState.user.lastTaskDate = null;
+                    
+                    // Reset achievements
+                    document.querySelectorAll('[id^="achievement-"]').forEach(achievement => {
+                        achievement.classList.add('opacity-50');
+                        achievement.classList.remove('pulse-glow');
+                    });
+                    
+                    showResetSuccess('📊 Progresso resetado!', 'Você voltou ao posto de Recruta. Suas tarefas foram mantidas.');
+                    break;
+                    
+                case 'everything':
+                    // PRESTIGE RESET - Salva dados para histórico
+                    const resetData = {
+                        date: new Date().toISOString(),
+                        xp: gameState.user.xp,
+                        tasksCompleted: gameState.user.tasksCompleted,
+                        combo: gameState.user.combo,
+                        rank: gameState.user.rank,
+                        totalTasks: gameState.tasks.length,
+                        completedTasks: gameState.tasks.filter(t => t.completed).length
+                    };
+                    
+                    // Atualiza estatísticas de prestígio
+                    gameState.user.totalLifetimeXP += gameState.user.xp;
+                    gameState.user.totalLifetimeTasks += gameState.user.tasksCompleted;
+                    gameState.user.totalResets += 1;
+                    
+                    // Atualiza recordes
+                    if (gameState.user.combo > gameState.user.maxComboEver) {
+                        gameState.user.maxComboEver = gameState.user.combo;
+                    }
+                    
+                    const currentRankIndex = ranks.findIndex(r => r.name === gameState.user.rank);
+                    const highestRankIndex = ranks.findIndex(r => r.name === gameState.user.highestRankEver);
+                    if (currentRankIndex > highestRankIndex) {
+                        gameState.user.highestRankEver = gameState.user.rank;
+                    }
+                    
+                    // Adiciona ao histórico
+                    gameState.resetHistory.unshift(resetData);
+                    
+                    // Atualiza patente de prestígio
+                    updatePrestigeRank();
+                    
+                    // Reset completo (mantém dados pessoais e prestígio)
+                    const personalData = {
+                        name: gameState.user.name,
+                        username: gameState.user.username,
+                        password: gameState.user.password,
+                        id: gameState.user.id,
+                        age: gameState.user.age,
+                        weight: gameState.user.weight,
+                        profession: gameState.user.profession,
+                        // Mantém dados de prestígio
+                        totalResets: gameState.user.totalResets,
+                        prestigeRank: gameState.user.prestigeRank,
+                        totalLifetimeXP: gameState.user.totalLifetimeXP,
+                        totalLifetimeTasks: gameState.user.totalLifetimeTasks,
+                        maxComboEver: gameState.user.maxComboEver,
+                        highestRankEver: gameState.user.highestRankEver,
+                        lastDailyReset: gameState.user.lastDailyReset
+                    };
+                    
+                    gameState.user = {
+                        ...personalData,
+                        xp: 0,
+                        tasksCompleted: 0,
+                        combo: 0,
+                        lastTaskDate: null,
+                        rank: 'recruta'
+                    };
+                    
+                    gameState.tasks = [];
+                    gameState.currentFilter = 'all';
+                    
+                    // Reset achievements
+                    document.querySelectorAll('[id^="achievement-"]').forEach(achievement => {
+                        achievement.classList.add('opacity-50');
+                        achievement.classList.remove('pulse-glow');
+                    });
+                    
+                    showPrestigeSuccess();
+                    break;
+                    
+                case 'account':
+                    // Deletar conta completamente
+                    const userKey = `taskforce-user-${gameState.currentUser}`;
+                    localStorage.removeItem(userKey);
+                    
+                    alert('🗑️ Conta deletada com sucesso!\n\nVocê será redirecionado para a tela de login.');
+                    
+                    // Redirect to login
+                    logout();
+                    return;
+            }
+            
+            // Save changes and update display
+            saveGameState();
+            updateDisplay();
+            closeResetConfirm();
+        }
+
+        function updatePrestigeRank() {
+            const currentPrestigeIndex = prestigeRanks.findIndex(r => r.name === gameState.user.prestigeRank);
+            
+            for (let i = prestigeRanks.length - 1; i >= 0; i--) {
+                if (gameState.user.totalResets >= prestigeRanks[i].resets) {
+                    if (prestigeRanks[i].name !== gameState.user.prestigeRank) {
+                        gameState.user.prestigeRank = prestigeRanks[i].name;
+                        showPrestigeRankUp(prestigeRanks[i].display);
+                    }
+                    break;
+                }
+            }
+        }
+
+        function showPrestigeSuccess() {
+            const currentPrestige = prestigeRanks.find(r => r.name === gameState.user.prestigeRank);
+            const notification = document.createElement('div');
+            notification.className = 'fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-purple-600 text-white p-8 rounded-lg shadow-2xl z-50 military-font text-center max-w-md';
+            notification.innerHTML = `
+                <div class="text-4xl mb-4">🏆</div>
+                <div class="text-2xl mb-2">PRESTÍGIO CONCLUÍDO!</div>
+                <div class="text-lg mb-2">${currentPrestige.display}</div>
+                <div class="text-sm">Reset #${gameState.user.totalResets} registrado no histórico!</div>
+                <div class="text-xs mt-2 text-purple-200">Sua jornada continua, soldado!</div>
+            `;
+            document.body.appendChild(notification);
+            
+            setTimeout(() => {
+                document.body.removeChild(notification);
+            }, 4000);
+        }
+
+        function showPrestigeRankUp(rankDisplay) {
+            const notification = document.createElement('div');
+            notification.className = 'fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-gradient-to-r from-purple-600 to-pink-600 text-white px-8 py-6 rounded-lg shadow-2xl z-50 military-font text-xl font-bold';
+            notification.innerHTML = `
+                <div class="text-center">
+                    <div class="text-4xl mb-2">🌟</div>
+                    <div class="text-2xl mb-2">PROMOÇÃO DE PRESTÍGIO!</div>
+                    <div class="text-lg">${rankDisplay}</div>
+                </div>
+            `;
+            document.body.appendChild(notification);
+            
+            setTimeout(() => {
+                document.body.removeChild(notification);
+            }, 4000);
+        }
+
+        function showResetSuccess(title, message) {
+            // Create success notification
+            const notification = document.createElement('div');
+            notification.className = 'fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-green-600 text-white p-6 rounded-lg shadow-2xl z-50 military-font text-center max-w-md';
+            notification.innerHTML = `
+                <div class="text-2xl mb-2">${title}</div>
+                <div class="text-sm">${message}</div>
+            `;
+            document.body.appendChild(notification);
+            
+            setTimeout(() => {
+                document.body.removeChild(notification);
+            }, 3000);
+        }
+
+        // Initialize
+        function init() {
+            loadGameState();
+            updateDisplay();
+        }
+
+        // Login/Register System
+        function showRegister() {
+            document.getElementById('loginForm').classList.add('hidden');
+            document.getElementById('registerForm').classList.remove('hidden');
+        }
+
+        function showLogin() {
+            document.getElementById('registerForm').classList.add('hidden');
+            document.getElementById('loginForm').classList.remove('hidden');
+        }
+
+        function register() {
+            const name = document.getElementById('regName').value.trim();
+            const age = parseInt(document.getElementById('regAge').value);
+            const weight = parseInt(document.getElementById('regWeight').value);
+            const profession = document.getElementById('regProfession').value.trim();
+            const username = document.getElementById('regUsername').value.trim();
+            const password = document.getElementById('regPassword').value.trim();
+            const confirmPassword = document.getElementById('regConfirmPassword').value.trim();
+
+            // Validations
+            if (!name || !age || !weight || !profession || !username || !password) {
+                alert('⚠️ Por favor, preencha todos os campos!');
+                return;
+            }
+
+            if (age < 16 || age > 99) {
+                alert('⚠️ Idade deve estar entre 16 e 99 anos!');
+                return;
+            }
+
+            if (weight < 30 || weight > 300) {
+                alert('⚠️ Peso deve estar entre 30 e 300 kg!');
+                return;
+            }
+
+            if (username.length < 3) {
+                alert('⚠️ Nick deve ter pelo menos 3 caracteres!');
+                return;
+            }
+
+            if (password.length < 4) {
+                alert('⚠️ Senha deve ter pelo menos 4 caracteres!');
+                return;
+            }
+
+            if (password !== confirmPassword) {
+                alert('⚠️ As senhas não coincidem!');
+                return;
+            }
+
+            // Check if username already exists
+            const userKey = `taskforce-user-${username.toLowerCase()}`;
+            if (localStorage.getItem(userKey)) {
+                alert('⚠️ Este nick já está em uso! Escolha outro.');
+                return;
+            }
+
+            // Create new user
+            gameState.user = {
+                name: name.toUpperCase(),
+                username: username.toLowerCase(),
+                password: password,
+                id: String(Math.floor(Math.random() * 999) + 1).padStart(3, '0'),
+                age: age,
+                weight: weight,
+                profession: profession,
+                xp: 0,
+                tasksCompleted: 0,
+                combo: 0,
+                lastTaskDate: null,
+                rank: 'recruta',
+                // Campos de prestígio
+                totalResets: 0,
+                prestigeRank: 'bronze1',
+                totalLifetimeXP: 0,
+                totalLifetimeTasks: 0,
+                maxComboEver: 0,
+                highestRankEver: 'recruta',
+                lastDailyReset: null
+            };
+            
+            gameState.tasks = [];
+            gameState.currentFilter = 'all';
+            gameState.currentUser = username.toLowerCase();
+            gameState.resetHistory = [];
+            gameState.customCategories = {};
+            gameState.version = "2.0";
+
+            // Save user data
+            saveGameState();
+
+            // Show success and redirect to login
+            alert('🎖️ ALISTAMENTO CONCLUÍDO! Bem-vindo ao TaskForce, soldado!');
+            
+            // Auto login
+            document.getElementById('loginScreen').classList.add('hidden');
+            document.getElementById('dashboard').classList.remove('hidden');
+            
+            // Inicializa sistema após registro
+            initializeApp();
+            updateCategoryFilters();
+            updateDisplay();
+        }
+
+        function login() {
+            const username = document.getElementById('loginUsername').value.trim();
+            const password = document.getElementById('loginPassword').value.trim();
+            
+            if (!username || !password) {
+                alert('⚠️ Por favor, preencha usuário e senha!');
+                return;
+            }
+
+            // Try to load existing user data
+            const userKey = `taskforce-user-${username.toLowerCase()}`;
+            const existingUser = localStorage.getItem(userKey);
+            
+            if (existingUser) {
+                let userData = JSON.parse(existingUser);
+                
+                // Check password
+                if (userData.user.password !== password) {
+                    alert('⚠️ Senha incorreta!');
+                    return;
+                }
+                
+                // Migra dados antigos para nova versão
+                userData = migrateUserData(userData);
+                
+                // Load existing user
+                gameState = userData;
+                gameState.currentUser = username.toLowerCase();
+                
+                // Salva dados migrados
+                saveGameState();
+                
+                console.log(`Bem-vindo de volta, ${gameState.user.name}!`);
+                
+                document.getElementById('loginScreen').classList.add('hidden');
+                document.getElementById('dashboard').classList.remove('hidden');
+                
+                // Inicializa sistema após login
+                initializeApp();
+                updateCategoryFilters();
+                updateDisplay();
+            } else {
+                alert('⚠️ Usuário não encontrado! Cadastre-se primeiro.');
+            }
+        }
+
+        function logout() {
+            document.getElementById('dashboard').classList.add('hidden');
+            document.getElementById('loginScreen').classList.remove('hidden');
+            document.getElementById('loginUsername').value = '';
+            document.getElementById('loginPassword').value = '';
+            
+            // Clear register form
+            document.getElementById('regName').value = '';
+            document.getElementById('regAge').value = '';
+            document.getElementById('regWeight').value = '';
+            document.getElementById('regProfession').value = '';
+            document.getElementById('regUsername').value = '';
+            document.getElementById('regPassword').value = '';
+            document.getElementById('regConfirmPassword').value = '';
+            
+            // Close any open modals
+            closeResetMenu();
+            closeResetConfirm();
+            closeProfile();
+            closeHistory();
+            
+            // Show login form
+            showLogin();
+        }
+
+        // Task Management
+        function addTask() {
+            const title = document.getElementById('taskTitle').value.trim();
+            const categorySelect = document.getElementById('taskCategory');
+            const taskDate = document.getElementById('taskDate').value;
+            let category = categorySelect.value;
+            
+            if (!title) {
+                alert('Digite o título da missão!');
+                return;
+            }
+
+            if (!taskDate) {
+                alert('Selecione uma data para a missão!');
+                return;
+            }
+            
+            // Se é categoria personalizada
+            if (category === 'custom') {
+                const customName = document.getElementById('customCategory').value.trim();
+                const selectedEmoji = document.getElementById('selectedEmoji').value;
+                
+                if (!customName) {
+                    alert('Digite o nome da nova categoria!');
+                    return;
+                }
+                
+                // Cria ID único para a categoria
+                const categoryId = customName.toLowerCase().replace(/\s+/g, '_');
+                category = categoryId;
+                
+                // Salva a categoria personalizada
+                if (!gameState.customCategories) {
+                    gameState.customCategories = {};
+                }
+                gameState.customCategories[categoryId] = {
+                    name: customName,
+                    emoji: selectedEmoji,
+                    display: `${selectedEmoji} ${customName}`
+                };
+                
+                // Atualiza os filtros
+                updateCategoryFilters();
+                
+                // Limpa o campo
+                document.getElementById('customCategory').value = '';
+                categorySelect.value = 'trabalho';
+                toggleCustomCategory();
+            }
+            
+            const task = {
+                id: Date.now(),
+                title: title,
+                category: category,
+                date: taskDate,
+                completed: false,
+                createdAt: new Date()
+            };
+            
+            gameState.tasks.push(task);
+            document.getElementById('taskTitle').value = '';
+            document.getElementById('taskDate').value = new Date().toISOString().split('T')[0];
+            
+            updateTaskList();
+            saveGameState();
+            
+            // Feedback visual
+            showTaskAdded(title, taskDate);
+        }
+
+        function showTaskAdded(title, date) {
+            const notification = document.createElement('div');
+            notification.className = 'fixed top-20 right-6 bg-green-600 text-white px-4 py-2 rounded-lg shadow-lg z-50 transform transition-all duration-1000';
+            notification.innerHTML = `✅ Missão "${title}" agendada para ${formatDate(date)}`;
+            document.body.appendChild(notification);
+            
+            setTimeout(() => {
+                notification.style.transform = 'translateY(-50px)';
+                notification.style.opacity = '0';
+            }, 100);
+            
+            setTimeout(() => {
+                document.body.removeChild(notification);
+            }, 3000);
+        }
+
+        function formatDate(dateString) {
+            const date = new Date(dateString + 'T00:00:00');
+            const today = new Date();
+            const tomorrow = new Date(today);
+            tomorrow.setDate(tomorrow.getDate() + 1);
+            
+            if (date.toDateString() === today.toDateString()) {
+                return 'hoje';
+            } else if (date.toDateString() === tomorrow.toDateString()) {
+                return 'amanhã';
+            } else {
+                return date.toLocaleDateString('pt-BR');
+            }
+        }
+
+        function completeTask(taskId) {
+            const task = gameState.tasks.find(t => t.id === taskId);
+            if (task && !task.completed) {
+                task.completed = true;
+                task.completedAt = new Date();
+                
+                // Award XP
+                gameState.user.xp += 1;
+                gameState.user.tasksCompleted += 1;
+                
+                // Update combo
+                updateCombo();
+                
+                // Check for daily missions
+                checkDailyMissions();
+                
+                // Check for achievements
+                checkAchievements();
+                
+                // Update rank
+                updateRank();
+                
+                updateDisplay();
+                updateTaskList();
+                saveGameState();
+                
+                // Visual feedback
+                showXPGain(1);
+            }
+        }
+
+        function deleteTask(taskId) {
+            gameState.tasks = gameState.tasks.filter(t => t.id !== taskId);
+            updateTaskList();
+            saveGameState();
+        }
+
+        function updateCombo() {
+            const today = new Date().toDateString();
+            const lastTaskDate = gameState.user.lastTaskDate;
+            
+            if (!lastTaskDate || lastTaskDate !== today) {
+                const yesterday = new Date();
+                yesterday.setDate(yesterday.getDate() - 1);
+                
+                if (lastTaskDate === yesterday.toDateString()) {
+                    gameState.user.combo += 1;
+                } else if (lastTaskDate !== today) {
+                    gameState.user.combo = 1;
+                }
+                
+                gameState.user.lastTaskDate = today;
+            }
+        }
+
+        function checkDailyMissions() {
+            const today = new Date().toDateString();
+            const todayTasks = gameState.tasks.filter(t => 
+                t.completed && new Date(t.completedAt).toDateString() === today
+            ).length;
+            
+            // Mission 1: Complete 3 tasks today
+            const mission1Progress = Math.min(todayTasks / 3 * 100, 100);
+            document.getElementById('mission1Progress').style.width = mission1Progress + '%';
+            
+            if (todayTasks >= 3 && mission1Progress === 100) {
+                gameState.user.xp += 2;
+                showXPGain(2, 'Missão Diária Completa!');
+            }
+            
+            // Mission 2: Complete 1 task before 10 AM
+            const earlyTasks = gameState.tasks.filter(t => 
+                t.completed && 
+                new Date(t.completedAt).toDateString() === today &&
+                new Date(t.completedAt).getHours() < 10
+            ).length;
+            
+            const mission2Progress = earlyTasks > 0 ? 100 : 0;
+            document.getElementById('mission2Progress').style.width = mission2Progress + '%';
+            
+            // Mission 3: 5-day combo
+            const mission3Progress = Math.min(gameState.user.combo / 5 * 100, 100);
+            document.getElementById('mission3Progress').style.width = mission3Progress + '%';
+            
+            if (gameState.user.combo >= 5 && mission3Progress === 100) {
+                gameState.user.xp += 5;
+                showXPGain(5, 'Combo de 5 Dias!');
+            }
+        }
+
+        function checkAchievements() {
+            // First Mission
+            if (gameState.user.tasksCompleted >= 1) {
+                document.getElementById('achievement-first').classList.remove('opacity-50');
+                document.getElementById('achievement-first').classList.add('pulse-glow');
+            }
+            
+            // 5-day streak
+            if (gameState.user.combo >= 5) {
+                document.getElementById('achievement-streak').classList.remove('opacity-50');
+                document.getElementById('achievement-streak').classList.add('pulse-glow');
+            }
+            
+            // 100 missions
+            if (gameState.user.tasksCompleted >= 100) {
+                document.getElementById('achievement-hundred').classList.remove('opacity-50');
+                document.getElementById('achievement-hundred').classList.add('pulse-glow');
+            }
+            
+            // General rank
+            if (gameState.user.rank === 'general') {
+                document.getElementById('achievement-general').classList.remove('opacity-50');
+                document.getElementById('achievement-general').classList.add('pulse-glow');
+            }
+        }
+
+        function updateRank() {
+            const currentRank = ranks.find(r => r.xp <= gameState.user.xp && 
+                (ranks.indexOf(r) === ranks.length - 1 || ranks[ranks.indexOf(r) + 1].xp > gameState.user.xp));
+            
+            if (currentRank && currentRank.name !== gameState.user.rank) {
+                gameState.user.rank = currentRank.name;
+                showRankUp(currentRank.display);
+            }
+        }
+
+        function showXPGain(xp, message = '') {
+            // Create floating XP notification
+            const notification = document.createElement('div');
+            notification.className = 'fixed top-20 right-6 bg-green-600 text-white px-4 py-2 rounded-lg shadow-lg z-50 transform transition-all duration-1000';
+            notification.innerHTML = `+${xp} XP ${message}`;
+            document.body.appendChild(notification);
+            
+            setTimeout(() => {
+                notification.style.transform = 'translateY(-50px)';
+                notification.style.opacity = '0';
+            }, 100);
+            
+            setTimeout(() => {
+                document.body.removeChild(notification);
+            }, 1100);
+        }
+
+        function showRankUp(rankDisplay) {
+            const notification = document.createElement('div');
+            notification.className = 'fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-yellow-600 text-black px-8 py-4 rounded-lg shadow-2xl z-50 military-font text-xl font-bold';
+            notification.innerHTML = `🎖️ PROMOÇÃO! ${rankDisplay}`;
+            document.body.appendChild(notification);
+            
+            setTimeout(() => {
+                document.body.removeChild(notification);
+            }, 3000);
+        }
+
+        // Filter Tasks
+        function filterTasks(category) {
+            gameState.currentFilter = category;
+            
+            // Update filter buttons
+            document.querySelectorAll('.filter-btn').forEach(btn => {
+                btn.classList.remove('bg-blue-600', 'bg-green-600', 'bg-purple-600');
+                btn.classList.add('bg-gray-600');
+            });
+            
+            if (category === 'today') {
+                event.target.classList.remove('bg-gray-600');
+                event.target.classList.add('bg-green-600');
+            } else if (category === 'future') {
+                event.target.classList.remove('bg-gray-600');
+                event.target.classList.add('bg-purple-600');
+            } else {
+                event.target.classList.remove('bg-gray-600');
+                event.target.classList.add('bg-blue-600');
+            }
+            
+            updateTaskList();
+        }
+
+        function updateCategoryFilters() {
+            const filtersContainer = document.getElementById('categoryFilters');
+            if (!filtersContainer) return;
+            
+            // Botões fixos
+            let filtersHTML = `
+                <button onclick="filterTasks('all')" class="filter-btn bg-blue-600 hover:bg-blue-700 px-3 py-1 rounded-full text-xs transition duration-300">Todas</button>
+                <button onclick="filterTasks('today')" class="filter-btn bg-gray-600 hover:bg-green-700 px-3 py-1 rounded-full text-xs transition duration-300">📅 Hoje</button>
+                <button onclick="filterTasks('future')" class="filter-btn bg-gray-600 hover:bg-purple-700 px-3 py-1 rounded-full text-xs transition duration-300">🔮 Futuras</button>
+                <button onclick="filterTasks('trabalho')" class="filter-btn bg-gray-600 hover:bg-gray-700 px-3 py-1 rounded-full text-xs transition duration-300">💼 Trabalho</button>
+                <button onclick="filterTasks('pessoal')" class="filter-btn bg-gray-600 hover:bg-gray-700 px-3 py-1 rounded-full text-xs transition duration-300">🏠 Pessoal</button>
+                <button onclick="filterTasks('estudos')" class="filter-btn bg-gray-600 hover:bg-gray-700 px-3 py-1 rounded-full text-xs transition duration-300">📚 Estudos</button>
+                <button onclick="filterTasks('saude')" class="filter-btn bg-gray-600 hover:bg-gray-700 px-3 py-1 rounded-full text-xs transition duration-300">💪 Saúde</button>
+            `;
+            
+            // Adiciona categorias personalizadas
+            if (gameState.customCategories) {
+                Object.keys(gameState.customCategories).forEach(categoryId => {
+                    const category = gameState.customCategories[categoryId];
+                    filtersHTML += `<button onclick="filterTasks('${categoryId}')" class="filter-btn bg-gray-600 hover:bg-gray-700 px-3 py-1 rounded-full text-xs transition duration-300">${category.display}</button>`;
+                });
+            }
+            
+            filtersContainer.innerHTML = filtersHTML;
+        }
+
+        function updateTaskList() {
+            const taskList = document.getElementById('taskList');
+            const today = new Date().toISOString().split('T')[0];
+            
+            let filteredTasks = [];
+            
+            if (gameState.currentFilter === 'all') {
+                filteredTasks = gameState.tasks;
+            } else if (gameState.currentFilter === 'today') {
+                filteredTasks = gameState.tasks.filter(t => t.date === today);
+            } else if (gameState.currentFilter === 'future') {
+                filteredTasks = gameState.tasks.filter(t => t.date > today);
+            } else {
+                filteredTasks = gameState.tasks.filter(t => t.category === gameState.currentFilter);
+            }
+            
+            if (filteredTasks.length === 0) {
+                let emptyMessage = 'Nenhuma missão encontrada';
+                if (gameState.currentFilter === 'today') {
+                    emptyMessage = '📅 Nenhuma missão para hoje. Que tal adicionar uma?';
+                } else if (gameState.currentFilter === 'future') {
+                    emptyMessage = '🔮 Nenhuma missão futura agendada.';
+                }
+                taskList.innerHTML = `<div class="text-center text-gray-400 py-8">${emptyMessage}</div>`;
+                return;
+            }
+            
+            // Ordena tarefas por data
+            filteredTasks.sort((a, b) => new Date(a.date) - new Date(b.date));
+            
+            taskList.innerHTML = filteredTasks.map(task => {
+                const taskDate = new Date(task.date + 'T00:00:00');
+                const isToday = task.date === today;
+                const isPast = task.date < today;
+                const categoryDisplay = getCategoryDisplay(task.category);
+                
+                return `
+                    <div class="task-item p-4 rounded-lg ${task.completed ? 'opacity-50' : ''} ${isPast && !task.completed ? 'border-l-red-500' : isToday ? 'border-l-green-500' : 'border-l-blue-500'}">
+                        <div class="flex items-center justify-between">
+                            <div class="flex items-center space-x-3">
+                                <button onclick="completeTask(${task.id})" 
+                                        class="w-6 h-6 rounded-full border-2 ${task.completed ? 'bg-green-600 border-green-600' : 'border-gray-400 hover:border-green-400'} 
+                                               flex items-center justify-center transition duration-300"
+                                        ${task.completed ? 'disabled' : ''}>
+                                    ${task.completed ? '✓' : ''}
+                                </button>
+                                <div>
+                                    <div class="font-medium ${task.completed ? 'line-through' : ''}">${task.title}</div>
+                                    <div class="text-sm text-gray-400 flex items-center space-x-2">
+                                        <span>${categoryDisplay}</span>
+                                        <span>•</span>
+                                        <span class="${isPast && !task.completed ? 'text-red-400' : isToday ? 'text-green-400' : 'text-blue-400'}">
+                                            ${formatDate(task.date)}
+                                        </span>
+                                        ${isPast && !task.completed ? '<span class="text-red-400 text-xs">⚠️ Atrasada</span>' : ''}
+                                    </div>
+                                </div>
+                            </div>
+                            <button onclick="deleteTask(${task.id})" class="text-red-400 hover:text-red-300 transition duration-300">
+                                🗑️
+                            </button>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function getCategoryDisplay(categoryId) {
+            // Categorias padrão
+            const defaultCategories = {
+                trabalho: '💼 Trabalho',
+                pessoal: '🏠 Pessoal',
+                estudos: '📚 Estudos',
+                saude: '💪 Saúde'
+            };
+            
+            if (defaultCategories[categoryId]) {
+                return defaultCategories[categoryId];
+            }
+            
+            // Categoria personalizada
+            if (gameState.customCategories && gameState.customCategories[categoryId]) {
+                return gameState.customCategories[categoryId].display;
+            }
+            
+            return '❓ Desconhecida';
+        }
+
+        // History System
+        function showHistory() {
+            updateHistoryDisplay();
+            document.getElementById('historyModal').classList.remove('hidden');
+        }
+
+        function closeHistory() {
+            document.getElementById('historyModal').classList.add('hidden');
+        }
+
+        function updateHistoryDisplay() {
+            // Current prestige info
+            const currentPrestige = prestigeRanks.find(r => r.name === gameState.user.prestigeRank);
+            document.getElementById('historyPrestigeRank').textContent = currentPrestige.display;
+            document.getElementById('historyTotalResets').textContent = gameState.user.totalResets;
+            document.getElementById('historyLifetimeXP').textContent = gameState.user.totalLifetimeXP;
+            
+            // Next prestige progress
+            const currentPrestigeIndex = prestigeRanks.findIndex(r => r.name === gameState.user.prestigeRank);
+            const nextPrestige = prestigeRanks[currentPrestigeIndex + 1];
+            
+            if (nextPrestige) {
+                document.getElementById('nextPrestigeInfo').textContent = `${nextPrestige.display} (${nextPrestige.resets} resets)`;
+                const progress = ((gameState.user.totalResets - currentPrestige.resets) / (nextPrestige.resets - currentPrestige.resets)) * 100;
+                document.getElementById('prestigeProgressBar').style.width = Math.min(progress, 100) + '%';
+            } else {
+                document.getElementById('nextPrestigeInfo').textContent = 'MÁXIMO ALCANÇADO!';
+                document.getElementById('prestigeProgressBar').style.width = '100%';
+            }
+            
+            // Records
+            document.getElementById('recordLifetimeTasks').textContent = gameState.user.totalLifetimeTasks;
+            document.getElementById('recordMaxCombo').textContent = gameState.user.maxComboEver;
+            document.getElementById('recordHighestRank').textContent = ranks.find(r => r.name === gameState.user.highestRankEver).display.split(' ')[0];
+            document.getElementById('recordLifetimeXP').textContent = gameState.user.totalLifetimeXP;
+            
+            // Reset history
+            const historyList = document.getElementById('resetHistoryList');
+            
+            if (gameState.resetHistory.length === 0) {
+                historyList.innerHTML = '<div class="text-center text-gray-400 py-8">Nenhum reset realizado ainda</div>';
+            } else {
+                historyList.innerHTML = gameState.resetHistory.map((reset, index) => {
+                    const date = new Date(reset.date);
+                    const rankDisplay = ranks.find(r => r.name === reset.rank).display;
+                    
+                    return `
+                        <div class="bg-gray-600 rounded-lg p-4 border-l-4 border-purple-500">
+                            <div class="flex justify-between items-start mb-2">
+                                <div class="font-bold text-purple-400">Reset #${gameState.user.totalResets - index}</div>
+                                <div class="text-sm text-gray-300">${date.toLocaleDateString('pt-BR')} às ${date.toLocaleTimeString('pt-BR', {hour: '2-digit', minute: '2-digit'})}</div>
+                            </div>
+                            <div class="grid grid-cols-2 md:grid-cols-4 gap-2 text-sm">
+                                <div class="text-center">
+                                    <div class="text-yellow-400 font-bold">${reset.xp}</div>
+                                    <div class="text-gray-400 text-xs">XP</div>
+                                </div>
+                                <div class="text-center">
+                                    <div class="text-green-400 font-bold">${reset.tasksCompleted}</div>
+                                    <div class="text-gray-400 text-xs">Missões</div>
+                                </div>
+                                <div class="text-center">
+                                    <div class="text-orange-400 font-bold">${reset.combo}</div>
+                                    <div class="text-gray-400 text-xs">Combo</div>
+                                </div>
+                                <div class="text-center">
+                                    <div class="text-blue-400 font-bold">${rankDisplay.split(' ')[0]}</div>
+                                    <div class="text-gray-400 text-xs">Patente</div>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                }).join('');
+            }
+        }
+
+        // Profile System
+        function showProfile() {
+            updateProfileDisplay();
+            document.getElementById('profileModal').classList.remove('hidden');
+        }
+
+        function closeProfile() {
+            document.getElementById('profileModal').classList.add('hidden');
+        }
+
+        function searchProfile() {
+            const searchId = document.getElementById('searchId').value.trim();
+            if (searchId) {
+                // Simulate profile search (in real app, this would query a database)
+                const profiles = [
+                    { name: 'OPERADOR-001', id: '001', rank: '🎖️ SOLDADO', age: 25, weight: 75, profession: 'Desenvolvedor', xp: 15 },
+                    { name: 'OPERADOR-002', id: '002', rank: '⭐ CABO', age: 30, weight: 68, profession: 'Designer', xp: 25 },
+                    { name: 'OPERADOR-003', id: '003', rank: '👑 CAPITÃO', age: 35, weight: 80, profession: 'Gerente', xp: 85 }
+                ];
+                
+                const profile = profiles.find(p => p.id === searchId.padStart(3, '0')) || profiles[0];
+                
+                document.getElementById('profileName').textContent = profile.name;
+                document.getElementById('profileId').textContent = profile.id;
+                document.getElementById('profileRank').textContent = profile.rank;
+                document.getElementById('profileAge').textContent = profile.age + ' anos';
+                document.getElementById('profileWeight').textContent = profile.weight + ' kg';
+                document.getElementById('profileJob').textContent = profile.profession;
+                document.getElementById('profileXP').textContent = profile.xp;
+                
+                const maxXP = 160;
+                const xpPercentage = Math.min(profile.xp / maxXP * 100, 100);
+                document.getElementById('profileXPBar').style.width = xpPercentage + '%';
+                
+                document.getElementById('profileModal').classList.remove('hidden');
+                document.getElementById('searchId').value = '';
+            }
+        }
+
+        function updateProfileDisplay() {
+            document.getElementById('profileName').textContent = gameState.user.name;
+            document.getElementById('profileId').textContent = gameState.user.id;
+            document.getElementById('profileRank').textContent = ranks.find(r => r.name === gameState.user.rank).display;
+            document.getElementById('profileAge').textContent = gameState.user.age + ' anos';
+            document.getElementById('profileWeight').textContent = gameState.user.weight + ' kg';
+            document.getElementById('profileJob').textContent = gameState.user.profession;
+            document.getElementById('profileXP').textContent = gameState.user.xp;
+            
+            const maxXP = 160;
+            const xpPercentage = Math.min(gameState.user.xp / maxXP * 100, 100);
+            document.getElementById('profileXPBar').style.width = xpPercentage + '%';
+        }
+
+        // Update Display
+        function updateDisplay() {
+            // User info
+            document.getElementById('userDisplay').textContent = `${gameState.user.name}-${gameState.user.id}`;
+            
+            // Prestige display
+            const currentPrestige = prestigeRanks.find(r => r.name === gameState.user.prestigeRank);
+            document.getElementById('prestigeDisplay').textContent = currentPrestige.display;
+            document.getElementById('prestigeDisplay').style.color = currentPrestige.color;
+            
+            // Current rank
+            const currentRankObj = ranks.find(r => r.name === gameState.user.rank);
+            document.getElementById('currentRank').textContent = currentRankObj.display;
+            
+            // XP Progress
+            document.getElementById('currentXP').textContent = gameState.user.xp;
+            document.getElementById('tasksCompleted').textContent = gameState.user.tasksCompleted;
+            document.getElementById('comboCount').textContent = gameState.user.combo;
+            
+            // Prestige stats
+            document.getElementById('totalResets').textContent = gameState.user.totalResets;
+            document.getElementById('lifetimeTasks').textContent = gameState.user.totalLifetimeTasks;
+            
+            // Next rank XP
+            const currentRankIndex = ranks.findIndex(r => r.name === gameState.user.rank);
+            const nextRank = ranks[currentRankIndex + 1];
+            if (nextRank) {
+                document.getElementById('nextXP').textContent = nextRank.xp;
+                const progress = ((gameState.user.xp - currentRankObj.xp) / (nextRank.xp - currentRankObj.xp)) * 100;
+                document.getElementById('xpBar').style.width = Math.min(progress, 100) + '%';
+            } else {
+                document.getElementById('nextXP').textContent = 'MAX';
+                document.getElementById('xpBar').style.width = '100%';
+            }
+            
+            // Highlight current rank
+            ranks.forEach(rank => {
+                const element = document.getElementById(`rank-${rank.name}`);
+                if (element) {
+                    if (rank.name === gameState.user.rank) {
+                        element.classList.add('bg-yellow-600', 'text-black');
+                    } else {
+                        element.classList.remove('bg-yellow-600', 'text-black');
+                    }
+                }
+            });
+            
+            updateTaskList();
+        }
+
+        // Data Migration System
+        function migrateUserData(userData) {
+            // Versão atual do sistema
+            const CURRENT_VERSION = "2.0";
+            
+            // Se não tem versão, é dados antigos
+            if (!userData.version) {
+                console.log("Migrando dados da versão antiga...");
+                
+                // Adiciona campos de prestígio se não existirem
+                if (!userData.user.totalResets) userData.user.totalResets = 0;
+                if (!userData.user.prestigeRank) userData.user.prestigeRank = 'bronze1';
+                if (!userData.user.totalLifetimeXP) userData.user.totalLifetimeXP = 0;
+                if (!userData.user.totalLifetimeTasks) userData.user.totalLifetimeTasks = 0;
+                if (!userData.user.maxComboEver) userData.user.maxComboEver = userData.user.combo || 0;
+                if (!userData.user.highestRankEver) userData.user.highestRankEver = userData.user.rank || 'recruta';
+                if (!userData.user.lastDailyReset) userData.user.lastDailyReset = null;
+                
+                // Adiciona histórico de resets se não existir
+                if (!userData.resetHistory) userData.resetHistory = [];
+                
+                // Adiciona categorias personalizadas se não existir
+                if (!userData.customCategories) userData.customCategories = {};
+                
+                // Migra tarefas antigas para novo formato com data
+                if (userData.tasks) {
+                    const today = new Date().toISOString().split('T')[0];
+                    userData.tasks.forEach(task => {
+                        if (!task.date) {
+                            task.date = today; // Define tarefas antigas como sendo de hoje
+                        }
+                    });
+                }
+                
+                // Marca como migrado
+                userData.version = CURRENT_VERSION;
+                
+                console.log("Migração concluída!");
+            }
+            
+            return userData;
+        }
+
+        // Save/Load Game State
+        function saveGameState() {
+            if (gameState.currentUser) {
+                // Adiciona versão aos dados antes de salvar
+                gameState.version = "2.0";
+                const userKey = `taskforce-user-${gameState.currentUser}`;
+                localStorage.setItem(userKey, JSON.stringify(gameState));
+            }
+        }
+
+        function loadGameState() {
+            // This function is now handled in the login process
+            // Each user has their own save file
+        }
+
+        // Initialize on page load
+        window.addEventListener('load', () => {
+            initializeApp();
+        });
+    </script>
+<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'9851f0c28354fd72',t:'MTc1ODg4MTEwMS4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+</html>
