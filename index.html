@@ -178,32 +178,69 @@
     <div id="dashboard" class="hidden">
         <!-- Header -->
         <header class="bg-gray-800 border-b border-gray-700 p-4">
-            <div class="max-w-7xl mx-auto flex justify-between items-center">
-                <div class="flex items-center space-x-4">
-                    <h1 class="military-font text-2xl font-bold text-yellow-400">⚔️ TASKFORCE</h1>
-                    <div class="rank-badge px-4 py-2 rounded-full">
-                        <span class="military-font text-sm" id="currentRank">🔰 RECRUTA</span>
+            <div class="max-w-7xl mx-auto">
+                <!-- Desktop Layout -->
+                <div class="hidden md:flex justify-between items-center">
+                    <div class="flex items-center space-x-4">
+                        <h1 class="military-font text-2xl font-bold text-yellow-400">⚔️ TASKFORCE</h1>
+                        <div class="rank-badge px-4 py-2 rounded-full">
+                            <span class="military-font text-sm" id="currentRank">🔰 RECRUTA</span>
+                        </div>
+                    </div>
+                    
+                    <div class="flex items-center space-x-4">
+                        <div class="text-right">
+                            <p class="text-sm text-gray-300">Soldado</p>
+                            <p class="military-font text-yellow-400" id="userDisplay">OPERADOR-001</p>
+                            <p class="text-xs" id="prestigeDisplay">🥉 BRONZE I</p>
+                        </div>
+                        <button onclick="showProfile()" class="bg-gray-700 hover:bg-gray-600 px-4 py-2 rounded-md transition duration-300">
+                            👤 Perfil
+                        </button>
+                        <button onclick="showHistory()" class="bg-purple-600 hover:bg-purple-700 px-4 py-2 rounded-md transition duration-300">
+                            📜 Histórico
+                        </button>
+                        <button onclick="showResetMenu()" class="bg-orange-600 hover:bg-orange-700 px-4 py-2 rounded-md transition duration-300">
+                            🔄 Reset
+                        </button>
+                        <button onclick="logout()" class="bg-red-600 hover:bg-red-700 px-4 py-2 rounded-md transition duration-300">
+                            🚪 Sair
+                        </button>
                     </div>
                 </div>
                 
-                <div class="flex items-center space-x-4">
-                    <div class="text-right">
-                        <p class="text-sm text-gray-300">Soldado</p>
-                        <p class="military-font text-yellow-400" id="userDisplay">OPERADOR-001</p>
-                        <p class="text-xs" id="prestigeDisplay">🥉 BRONZE I</p>
+                <!-- Mobile Layout -->
+                <div class="md:hidden">
+                    <!-- Top Row - Title and Rank -->
+                    <div class="flex justify-between items-center mb-3">
+                        <h1 class="military-font text-xl font-bold text-yellow-400">⚔️ TASKFORCE</h1>
+                        <div class="rank-badge px-3 py-1 rounded-full">
+                            <span class="military-font text-xs" id="currentRankMobile">🔰 RECRUTA</span>
+                        </div>
                     </div>
-                    <button onclick="showProfile()" class="bg-gray-700 hover:bg-gray-600 px-4 py-2 rounded-md transition duration-300">
-                        👤 Perfil
-                    </button>
-                    <button onclick="showHistory()" class="bg-purple-600 hover:bg-purple-700 px-4 py-2 rounded-md transition duration-300">
-                        📜 Histórico
-                    </button>
-                    <button onclick="showResetMenu()" class="bg-orange-600 hover:bg-orange-700 px-4 py-2 rounded-md transition duration-300">
-                        🔄 Reset
-                    </button>
-                    <button onclick="logout()" class="bg-red-600 hover:bg-red-700 px-4 py-2 rounded-md transition duration-300">
-                        🚪 Sair
-                    </button>
+                    
+                    <!-- Middle Row - User Info -->
+                    <div class="text-center mb-3">
+                        <p class="text-sm text-gray-300">Soldado</p>
+                        <p class="military-font text-yellow-400 text-sm" id="userDisplayMobile">OPERADOR-001</p>
+                        <p class="text-xs" id="prestigeDisplayMobile">🥉 BRONZE I</p>
+                    </div>
+                    
+                    <!-- Bottom Row - Action Buttons -->
+                    <div class="grid grid-cols-2 gap-2">
+                        <button onclick="showProfile()" class="bg-gray-700 hover:bg-gray-600 px-3 py-2 rounded-md transition duration-300 text-sm">
+                            👤 Perfil
+                        </button>
+                        <button onclick="showHistory()" class="bg-purple-600 hover:bg-purple-700 px-3 py-2 rounded-md transition duration-300 text-sm">
+                            📜 Histórico
+                        </button>
+                        <button onclick="showResetMenu()" class="bg-orange-600 hover:bg-orange-700 px-3 py-2 rounded-md transition duration-300 text-sm">
+                            🔄 Reset
+                        </button>
+                        <button onclick="logout()" class="bg-red-600 hover:bg-red-700 px-3 py-2 rounded-md transition duration-300 text-sm">
+                            🚪 Sair
+                        </button>
+                    </div>
                 </div>
             </div>
         </header>
@@ -345,6 +382,18 @@
                                     <button type="button" onclick="selectEmoji('🍎')" class="emoji-btn bg-gray-600 hover:bg-gray-500 px-2 py-1 rounded text-lg transition duration-300">🍎</button>
                                     <button type="button" onclick="selectEmoji('🎵')" class="emoji-btn bg-gray-600 hover:bg-gray-500 px-2 py-1 rounded text-lg transition duration-300">🎵</button>
                                     <button type="button" onclick="selectEmoji('🌟')" class="emoji-btn bg-gray-600 hover:bg-gray-500 px-2 py-1 rounded text-lg transition duration-300">🌟</button>
+                                    <button type="button" onclick="selectEmoji('💰')" class="emoji-btn bg-gray-600 hover:bg-gray-500 px-2 py-1 rounded text-lg transition duration-300">💰</button>
+                                    <button type="button" onclick="selectEmoji('🔧')" class="emoji-btn bg-gray-600 hover:bg-gray-500 px-2 py-1 rounded text-lg transition duration-300">🔧</button>
+                                    <button type="button" onclick="selectEmoji('📱')" class="emoji-btn bg-gray-600 hover:bg-gray-500 px-2 py-1 rounded text-lg transition duration-300">📱</button>
+                                    <button type="button" onclick="selectEmoji('🎮')" class="emoji-btn bg-gray-600 hover:bg-gray-500 px-2 py-1 rounded text-lg transition duration-300">🎮</button>
+                                    <button type="button" onclick="selectEmoji('🏆')" class="emoji-btn bg-gray-600 hover:bg-gray-500 px-2 py-1 rounded text-lg transition duration-300">🏆</button>
+                                    <button type="button" onclick="selectEmoji('⚡')" class="emoji-btn bg-gray-600 hover:bg-gray-500 px-2 py-1 rounded text-lg transition duration-300">⚡</button>
+                                    <button type="button" onclick="selectEmoji('🔥')" class="emoji-btn bg-gray-600 hover:bg-gray-500 px-2 py-1 rounded text-lg transition duration-300">🔥</button>
+                                    <button type="button" onclick="selectEmoji('💎')" class="emoji-btn bg-gray-600 hover:bg-gray-500 px-2 py-1 rounded text-lg transition duration-300">💎</button>
+                                    <button type="button" onclick="selectEmoji('🌈')" class="emoji-btn bg-gray-600 hover:bg-gray-500 px-2 py-1 rounded text-lg transition duration-300">🌈</button>
+                                    <button type="button" onclick="selectEmoji('🎪')" class="emoji-btn bg-gray-600 hover:bg-gray-500 px-2 py-1 rounded text-lg transition duration-300">🎪</button>
+                                    <button type="button" onclick="selectEmoji('🌍')" class="emoji-btn bg-gray-600 hover:bg-gray-500 px-2 py-1 rounded text-lg transition duration-300">🌍</button>
+                                    <button type="button" onclick="selectEmoji('🎭')" class="emoji-btn bg-gray-600 hover:bg-gray-500 px-2 py-1 rounded text-lg transition duration-300">🎭</button>
                                 </div>
                                 <input type="hidden" id="selectedEmoji" value="🎯">
                             </div>
@@ -1207,7 +1256,7 @@
             };
             
             gameState.tasks = [];
-            gameState.currentFilter = 'all';
+            gameState.currentFilter = 'today';
             gameState.currentUser = username.toLowerCase();
             gameState.resetHistory = [];
             gameState.customCategories = {};
@@ -1226,6 +1275,7 @@
             // Inicializa sistema após registro
             initializeApp();
             updateCategoryFilters();
+            updateCategorySelector();
             updateDisplay();
         }
 
@@ -1257,6 +1307,7 @@
                 // Load existing user
                 gameState = userData;
                 gameState.currentUser = username.toLowerCase();
+                gameState.currentFilter = 'today';
                 
                 // Salva dados migrados
                 saveGameState();
@@ -1269,6 +1320,7 @@
                 // Inicializa sistema após login
                 initializeApp();
                 updateCategoryFilters();
+                updateCategorySelector();
                 updateDisplay();
             } else {
                 alert('⚠️ Usuário não encontrado! Cadastre-se primeiro.');
@@ -1344,9 +1396,12 @@
                 // Atualiza os filtros
                 updateCategoryFilters();
                 
+                // Adiciona a nova categoria ao seletor
+                updateCategorySelector();
+                
                 // Limpa o campo
                 document.getElementById('customCategory').value = '';
-                categorySelect.value = 'trabalho';
+                categorySelect.value = categoryId; // Mantém a categoria criada selecionada
                 toggleCustomCategory();
             }
             
@@ -1579,14 +1634,48 @@
             updateTaskList();
         }
 
+        function updateCategorySelector() {
+            const categorySelect = document.getElementById('taskCategory');
+            if (!categorySelect) return;
+            
+            // Salva o valor atual
+            const currentValue = categorySelect.value;
+            
+            // HTML base das categorias padrão
+            let optionsHTML = `
+                <option value="trabalho">💼 Trabalho</option>
+                <option value="pessoal">🏠 Pessoal</option>
+                <option value="estudos">📚 Estudos</option>
+                <option value="saude">💪 Saúde</option>
+            `;
+            
+            // Adiciona categorias personalizadas
+            if (gameState.customCategories) {
+                Object.keys(gameState.customCategories).forEach(categoryId => {
+                    const category = gameState.customCategories[categoryId];
+                    optionsHTML += `<option value="${categoryId}">${category.display}</option>`;
+                });
+            }
+            
+            // Adiciona opção de nova categoria no final
+            optionsHTML += `<option value="custom">✨ Nova Categoria</option>`;
+            
+            categorySelect.innerHTML = optionsHTML;
+            
+            // Restaura o valor se ainda existir
+            if (currentValue && categorySelect.querySelector(`option[value="${currentValue}"]`)) {
+                categorySelect.value = currentValue;
+            }
+        }
+
         function updateCategoryFilters() {
             const filtersContainer = document.getElementById('categoryFilters');
             if (!filtersContainer) return;
             
-            // Botões fixos
+            // Botões fixos - "Hoje" como padrão ativo
             let filtersHTML = `
-                <button onclick="filterTasks('all')" class="filter-btn bg-blue-600 hover:bg-blue-700 px-3 py-1 rounded-full text-xs transition duration-300">Todas</button>
-                <button onclick="filterTasks('today')" class="filter-btn bg-gray-600 hover:bg-green-700 px-3 py-1 rounded-full text-xs transition duration-300">📅 Hoje</button>
+                <button onclick="filterTasks('all')" class="filter-btn bg-gray-600 hover:bg-blue-700 px-3 py-1 rounded-full text-xs transition duration-300">Todas</button>
+                <button onclick="filterTasks('today')" class="filter-btn bg-green-600 hover:bg-green-700 px-3 py-1 rounded-full text-xs transition duration-300">📅 Hoje</button>
                 <button onclick="filterTasks('future')" class="filter-btn bg-gray-600 hover:bg-purple-700 px-3 py-1 rounded-full text-xs transition duration-300">🔮 Futuras</button>
                 <button onclick="filterTasks('trabalho')" class="filter-btn bg-gray-600 hover:bg-gray-700 px-3 py-1 rounded-full text-xs transition duration-300">💼 Trabalho</button>
                 <button onclick="filterTasks('pessoal')" class="filter-btn bg-gray-600 hover:bg-gray-700 px-3 py-1 rounded-full text-xs transition duration-300">🏠 Pessoal</button>
@@ -1824,17 +1913,36 @@
 
         // Update Display
         function updateDisplay() {
-            // User info
+            // User info (Desktop)
             document.getElementById('userDisplay').textContent = `${gameState.user.name}-${gameState.user.id}`;
             
-            // Prestige display
+            // User info (Mobile)
+            const userDisplayMobile = document.getElementById('userDisplayMobile');
+            if (userDisplayMobile) {
+                userDisplayMobile.textContent = `${gameState.user.name}-${gameState.user.id}`;
+            }
+            
+            // Prestige display (Desktop)
             const currentPrestige = prestigeRanks.find(r => r.name === gameState.user.prestigeRank);
             document.getElementById('prestigeDisplay').textContent = currentPrestige.display;
             document.getElementById('prestigeDisplay').style.color = currentPrestige.color;
             
-            // Current rank
+            // Prestige display (Mobile)
+            const prestigeDisplayMobile = document.getElementById('prestigeDisplayMobile');
+            if (prestigeDisplayMobile) {
+                prestigeDisplayMobile.textContent = currentPrestige.display;
+                prestigeDisplayMobile.style.color = currentPrestige.color;
+            }
+            
+            // Current rank (Desktop)
             const currentRankObj = ranks.find(r => r.name === gameState.user.rank);
             document.getElementById('currentRank').textContent = currentRankObj.display;
+            
+            // Current rank (Mobile)
+            const currentRankMobile = document.getElementById('currentRankMobile');
+            if (currentRankMobile) {
+                currentRankMobile.textContent = currentRankObj.display;
+            }
             
             // XP Progress
             document.getElementById('currentXP').textContent = gameState.user.xp;
@@ -1935,5 +2043,5 @@
             initializeApp();
         });
     </script>
-<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'9851f0c28354fd72',t:'MTc1ODg4MTEwMS4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'986c762fb026572a',t:'MTc1OTE1OTE5Ni4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
 </html>
