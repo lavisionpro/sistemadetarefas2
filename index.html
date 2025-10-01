@@ -89,7 +89,7 @@
         <div class="bg-gray-800 p-8 rounded-lg shadow-2xl border border-gray-700 max-w-md w-full mx-4">
             <div class="text-center mb-8">
                 <h1 class="military-font text-4xl font-bold text-yellow-400 mb-2">⚔️ TASKFORCE</h1>
-                <p class="text-gray-300">Sistema de Missões Gamificado</p>
+                <p class="text-gray-300">Sistema de Missões Gamificado v2.0</p>
             </div>
             
             <!-- Login Form -->
@@ -108,9 +108,45 @@
                     🎖️ ENTRAR EM SERVIÇO
                 </button>
                 
-                <div class="text-center">
-                    <button onclick="showRegister()" class="text-yellow-400 hover:text-yellow-300 text-sm underline">
+                <div class="text-center space-y-2">
+                    <button onclick="showRegister()" class="text-yellow-400 hover:text-yellow-300 text-sm underline block">
                         Não tem conta? Cadastre-se aqui
+                    </button>
+                    <button onclick="showPasswordRecovery()" class="text-blue-400 hover:text-blue-300 text-sm underline block">
+                        Esqueci minha senha
+                    </button>
+                </div>
+            </div>
+
+            <!-- Password Recovery Form -->
+            <div id="recoveryForm" class="space-y-4 hidden">
+                <div class="text-center mb-4">
+                    <h2 class="military-font text-xl font-bold text-blue-400">🔑 RECUPERAÇÃO DE ACESSO</h2>
+                    <p class="text-sm text-gray-300">Confirme seus dados pessoais para recuperar a senha</p>
+                </div>
+
+                <div>
+                    <label class="block text-sm font-medium text-gray-300 mb-2">Nick de Usuário</label>
+                    <input type="text" id="recoveryUsername" class="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-md text-white focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="Digite seu nick">
+                </div>
+
+                <div>
+                    <label class="block text-sm font-medium text-gray-300 mb-2">Nome Completo</label>
+                    <input type="text" id="recoveryName" class="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-md text-white focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="Digite seu nome completo">
+                </div>
+                
+                <div>
+                    <label class="block text-sm font-medium text-gray-300 mb-2">Idade</label>
+                    <input type="number" id="recoveryAge" class="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-md text-white focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="Digite sua idade">
+                </div>
+                
+                <button onclick="recoverPassword()" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-4 rounded-md transition duration-300 military-font">
+                    🔍 RECUPERAR SENHA
+                </button>
+                
+                <div class="text-center">
+                    <button onclick="showLogin()" class="text-yellow-400 hover:text-yellow-300 text-sm underline">
+                        Voltar ao login
                     </button>
                 </div>
             </div>
@@ -269,10 +305,10 @@
                         </div>
                         <div class="bg-gray-700 rounded-lg p-3">
                             <div class="text-2xl font-bold text-orange-400 flex items-center justify-center">
-                                <span id="comboCount">0</span>
+                                <span id="constanciaCount">0</span>
                                 <span class="combo-flame ml-1">🔥</span>
                             </div>
-                            <div class="text-xs text-gray-300">Combo Diário</div>
+                            <div class="text-xs text-gray-300">Constância</div>
                         </div>
                     </div>
                     
@@ -319,7 +355,7 @@
                         
                         <div class="mission-card p-3 rounded-lg">
                             <div class="flex justify-between items-center">
-                                <span class="text-sm">Mantenha o combo por 5 dias</span>
+                                <span class="text-sm" id="constanciaMissionText">Mantenha constância por 5 dias</span>
                                 <span class="text-xs bg-purple-600 px-2 py-1 rounded-full">+5 XP</span>
                             </div>
                             <div class="w-full bg-gray-600 rounded-full h-2 mt-2">
@@ -350,11 +386,30 @@
                     <div class="space-y-4">
                         <input type="text" id="taskTitle" placeholder="Título da missão" class="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-md text-white focus:outline-none focus:ring-2 focus:ring-blue-500">
                         
+                        <!-- Tipo de Tarefa -->
                         <div>
+                            <label class="block text-sm font-medium text-gray-300 mb-2">🎯 Tipo de Missão</label>
+                            <select id="taskType" onchange="toggleTaskType()" class="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-md text-white focus:outline-none focus:ring-2 focus:ring-blue-500">
+                                <option value="normal">📋 Missão Normal</option>
+                                <option value="fixed">🔄 Missão Fixa (Recorrente)</option>
+                            </select>
+                        </div>
+                        
+                        <!-- Data para Missão Normal -->
+                        <div id="normalTaskDate">
                             <label class="block text-sm font-medium text-gray-300 mb-2">📅 Data da Missão</label>
                             <div class="flex space-x-2">
                                 <input type="date" id="taskDate" class="flex-1 px-3 py-2 bg-gray-700 border border-gray-600 rounded-md text-white focus:outline-none focus:ring-2 focus:ring-blue-500">
                                 <button type="button" onclick="setToday()" class="bg-blue-600 hover:bg-blue-700 px-3 py-2 rounded-md text-sm transition duration-300">Hoje</button>
+                            </div>
+                        </div>
+                        
+                        <!-- Configuração para Missão Fixa -->
+                        <div id="fixedTaskConfig" class="hidden">
+                            <label class="block text-sm font-medium text-gray-300 mb-2">📅 Dias do Mês (separados por vírgula)</label>
+                            <input type="text" id="fixedTaskDays" placeholder="Ex: 5,15,25" class="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-md text-white focus:outline-none focus:ring-2 focus:ring-blue-500">
+                            <div class="text-xs text-gray-400 mt-1">
+                                Slots disponíveis: <span id="availableSlots">1</span> | Slots usados: <span id="usedSlots">0</span>
                             </div>
                         </div>
                         
@@ -409,15 +464,17 @@
                 <div class="bg-gray-800 rounded-lg p-6 border border-gray-700">
                     <h3 class="military-font text-lg font-bold text-yellow-400 mb-4">📋 MISSÕES ATIVAS</h3>
                     
-                    <!-- Category Filter -->
-                    <div class="flex flex-wrap gap-2 mb-4" id="categoryFilters">
-                        <button onclick="filterTasks('all')" class="filter-btn bg-gray-600 hover:bg-blue-700 px-3 py-1 rounded-full text-xs transition duration-300">Todas</button>
-                        <button onclick="filterTasks('today')" class="filter-btn bg-green-600 hover:bg-green-700 px-3 py-1 rounded-full text-xs transition duration-300">📅 Hoje</button>
-                        <button onclick="filterTasks('future')" class="filter-btn bg-gray-600 hover:bg-purple-700 px-3 py-1 rounded-full text-xs transition duration-300">🔮 Futuras</button>
-                        <button onclick="filterTasks('trabalho')" class="filter-btn bg-gray-600 hover:bg-gray-700 px-3 py-1 rounded-full text-xs transition duration-300">💼 Trabalho</button>
-                        <button onclick="filterTasks('pessoal')" class="filter-btn bg-gray-600 hover:bg-gray-700 px-3 py-1 rounded-full text-xs transition duration-300">🏠 Pessoal</button>
-                        <button onclick="filterTasks('estudos')" class="filter-btn bg-gray-600 hover:bg-gray-700 px-3 py-1 rounded-full text-xs transition duration-300">📚 Estudos</button>
-                        <button onclick="filterTasks('saude')" class="filter-btn bg-gray-600 hover:bg-gray-700 px-3 py-1 rounded-full text-xs transition duration-300">💪 Saúde</button>
+                    <!-- Date Selector -->
+                    <div class="mb-4">
+                        <label class="block text-sm font-medium text-gray-300 mb-2">📅 Visualizar Missões de:</label>
+                        <div class="flex space-x-2">
+                            <input type="date" id="dateSelector" class="flex-1 px-3 py-2 bg-gray-700 border border-gray-600 rounded-md text-white focus:outline-none focus:ring-2 focus:ring-blue-500" onchange="selectDate()">
+                            <button type="button" onclick="selectToday()" class="bg-green-600 hover:bg-green-700 px-4 py-2 rounded-md text-sm transition duration-300">📅 Hoje</button>
+                            <button type="button" onclick="selectTomorrow()" class="bg-blue-600 hover:bg-blue-700 px-4 py-2 rounded-md text-sm transition duration-300">➡️ Amanhã</button>
+                        </div>
+                        <div class="text-xs text-gray-400 mt-1" id="selectedDateInfo">
+                            Mostrando missões de hoje
+                        </div>
                     </div>
                     
                     <div id="taskList" class="space-y-3">
@@ -722,27 +779,28 @@
                 profession: 'Desenvolvedor',
                 xp: 0,
                 tasksCompleted: 0,
-                combo: 0,
+                constancia: 0,
                 lastTaskDate: null,
                 rank: 'recruta',
-                // Prestígio System
                 totalResets: 0,
                 prestigeRank: 'bronze1',
                 totalLifetimeXP: 0,
                 totalLifetimeTasks: 0,
                 maxComboEver: 0,
                 highestRankEver: 'recruta',
-                // Sistema de Reset Diário
-                lastDailyReset: null
+                lastDailyReset: null,
+                constanciaGoal: 5,
+                constanciaAchievements: 0
             },
             tasks: [],
-            currentFilter: 'all',
+            fixedTasks: [],
+            currentFilter: 'today',
+            selectedDate: null,
             currentUser: null,
             resetType: null,
-            // Histórico de Resets
             resetHistory: [],
-            // Categorias personalizadas
-            customCategories: {}
+            customCategories: {},
+            version: "2.0"
         };
 
         // Rank System
@@ -761,53 +819,19 @@
 
         // Prestige Rank System
         const prestigeRanks = [
-            // Bronze Tier
             { name: 'bronze1', display: '🥉 BRONZE I', resets: 0, color: '#CD7F32' },
             { name: 'bronze2', display: '🥉 BRONZE II', resets: 10, color: '#CD7F32' },
             { name: 'bronze3', display: '🥉 BRONZE III', resets: 25, color: '#CD7F32' },
-            
-            // Prata Tier
             { name: 'prata1', display: '🥈 PRATA I', resets: 45, color: '#C0C0C0' },
             { name: 'prata2', display: '🥈 PRATA II', resets: 70, color: '#C0C0C0' },
             { name: 'prata3', display: '🥈 PRATA III', resets: 100, color: '#C0C0C0' },
-            
-            // Ouro Tier
             { name: 'ouro1', display: '🥇 OURO I', resets: 135, color: '#FFD700' },
             { name: 'ouro2', display: '🥇 OURO II', resets: 175, color: '#FFD700' },
             { name: 'ouro3', display: '🥇 OURO III', resets: 220, color: '#FFD700' },
-            
-            // Diamante Tier
             { name: 'diamante1', display: '💎 DIAMANTE I', resets: 270, color: '#B9F2FF' },
             { name: 'diamante2', display: '💎 DIAMANTE II', resets: 325, color: '#B9F2FF' },
             { name: 'diamante3', display: '💎 DIAMANTE III', resets: 385, color: '#B9F2FF' },
-            
-            // Esmeralda Tier
-            { name: 'esmeralda1', display: '💚 ESMERALDA I', resets: 450, color: '#50C878' },
-            { name: 'esmeralda2', display: '💚 ESMERALDA II', resets: 520, color: '#50C878' },
-            { name: 'esmeralda3', display: '💚 ESMERALDA III', resets: 595, color: '#50C878' },
-            
-            // Rubi Tier
-            { name: 'rubi1', display: '❤️ RUBI I', resets: 675, color: '#E0115F' },
-            { name: 'rubi2', display: '❤️ RUBI II', resets: 760, color: '#E0115F' },
-            { name: 'rubi3', display: '❤️ RUBI III', resets: 850, color: '#E0115F' },
-            
-            // Safira Tier
-            { name: 'safira1', display: '💙 SAFIRA I', resets: 945, color: '#0F52BA' },
-            { name: 'safira2', display: '💙 SAFIRA II', resets: 1045, color: '#0F52BA' },
-            { name: 'safira3', display: '💙 SAFIRA III', resets: 1150, color: '#0F52BA' },
-            
-            // Ametista Tier
-            { name: 'ametista1', display: '💜 AMETISTA I', resets: 1260, color: '#9966CC' },
-            { name: 'ametista2', display: '💜 AMETISTA II', resets: 1375, color: '#9966CC' },
-            { name: 'ametista3', display: '💜 AMETISTA III', resets: 1495, color: '#9966CC' },
-            
-            // Topázio Tier
-            { name: 'topazio1', display: '🧡 TOPÁZIO I', resets: 1620, color: '#FFC87C' },
-            { name: 'topazio2', display: '🧡 TOPÁZIO II', resets: 1750, color: '#FFC87C' },
-            { name: 'topazio3', display: '🧡 TOPÁZIO III', resets: 1885, color: '#FFC87C' },
-            
-            // Lendário
-            { name: 'lendario', display: '🌟 LENDÁRIO', resets: 2025, color: '#FFD700' }
+            { name: 'lendario', display: '🌟 LENDÁRIO', resets: 450, color: '#FFD700' }
         ];
 
         // Category Icons
@@ -821,7 +845,6 @@
         // Sistema de Data/Hora de Brasília
         function getBrasiliaDate() {
             const now = new Date();
-            // Converte para horário de Brasília (UTC-3)
             const brasiliaTime = new Date(now.toLocaleString("en-US", {timeZone: "America/Sao_Paulo"}));
             return brasiliaTime;
         }
@@ -831,13 +854,92 @@
             return brasiliaDate.toISOString().split('T')[0];
         }
 
-        function formatBrasiliaDateTime(date) {
-            const brasiliaDate = new Date(date.toLocaleString("en-US", {timeZone: "America/Sao_Paulo"}));
-            return {
-                date: brasiliaDate.toLocaleDateString('pt-BR'),
-                time: brasiliaDate.toLocaleTimeString('pt-BR', {hour: '2-digit', minute: '2-digit'}),
-                dateString: brasiliaDate.toISOString().split('T')[0]
-            };
+        // Migração de dados
+        function migrateUserData(userData) {
+            if (!userData.version || userData.version < "2.0") {
+                console.log('Migrando dados para v2.0...');
+                
+                // Migra combo para constancia
+                if (userData.user.combo !== undefined) {
+                    userData.user.constancia = userData.user.combo;
+                    delete userData.user.combo;
+                }
+                
+                // Adiciona novos campos se não existirem
+                if (!userData.user.totalResets) userData.user.totalResets = 0;
+                if (!userData.user.prestigeRank) userData.user.prestigeRank = 'bronze1';
+                if (!userData.user.totalLifetimeXP) userData.user.totalLifetimeXP = 0;
+                if (!userData.user.totalLifetimeTasks) userData.user.totalLifetimeTasks = 0;
+                if (!userData.user.maxComboEver) userData.user.maxComboEver = userData.user.constancia || 0;
+                if (!userData.user.highestRankEver) userData.user.highestRankEver = userData.user.rank || 'recruta';
+                if (!userData.user.constanciaGoal) userData.user.constanciaGoal = 5;
+                if (!userData.user.constanciaAchievements) userData.user.constanciaAchievements = 0;
+                
+                // Inicializa arrays se não existirem
+                if (!userData.fixedTasks) userData.fixedTasks = [];
+                if (!userData.resetHistory) userData.resetHistory = [];
+                if (!userData.customCategories) userData.customCategories = {};
+                
+                userData.version = "2.0";
+                console.log('Migração concluída!');
+            }
+            
+            return userData;
+        }
+
+        // Funções para tarefas fixas
+        function toggleTaskType() {
+            const taskType = document.getElementById('taskType').value;
+            const normalDiv = document.getElementById('normalTaskDate');
+            const fixedDiv = document.getElementById('fixedTaskConfig');
+            
+            if (taskType === 'fixed') {
+                normalDiv.classList.add('hidden');
+                fixedDiv.classList.remove('hidden');
+                updateFixedTaskSlots();
+            } else {
+                normalDiv.classList.remove('hidden');
+                fixedDiv.classList.add('hidden');
+            }
+        }
+
+        function updateFixedTaskSlots() {
+            const availableSlots = 1 + gameState.user.totalResets;
+            const usedSlots = gameState.fixedTasks ? gameState.fixedTasks.length : 0;
+            
+            document.getElementById('availableSlots').textContent = availableSlots;
+            document.getElementById('usedSlots').textContent = usedSlots;
+        }
+
+        function generateFixedTasks() {
+            if (!gameState.fixedTasks) return;
+            
+            const today = getBrasiliaDate();
+            const currentDay = today.getDate();
+            const todayString = getBrasiliaDateString();
+            
+            gameState.fixedTasks.forEach(fixedTask => {
+                if (fixedTask.days.includes(currentDay)) {
+                    const existingTask = gameState.tasks.find(task => 
+                        task.fixedTaskId === fixedTask.id && task.date === todayString
+                    );
+                    
+                    if (!existingTask) {
+                        const newTask = {
+                            id: Date.now() + Math.random(),
+                            title: fixedTask.title,
+                            category: fixedTask.category,
+                            date: todayString,
+                            completed: false,
+                            createdAt: new Date(),
+                            isFromFixed: true,
+                            fixedTaskId: fixedTask.id
+                        };
+                        
+                        gameState.tasks.push(newTask);
+                    }
+                }
+            });
         }
 
         // Funções para categorias personalizadas
@@ -855,7 +957,6 @@
         function selectEmoji(emoji) {
             document.getElementById('selectedEmoji').value = emoji;
             
-            // Visual feedback
             document.querySelectorAll('.emoji-btn').forEach(btn => {
                 btn.classList.remove('selected');
             });
@@ -867,13 +968,96 @@
             document.getElementById('taskDate').value = today;
         }
 
-        // Sistema de Reset Diário Automático (Horário de Brasília)
+        // Funções de seleção de data
+        function selectDate() {
+            const selectedDate = document.getElementById('dateSelector').value;
+            gameState.selectedDate = selectedDate;
+            updateSelectedDateInfo();
+            updateTaskList();
+        }
+
+        function selectToday() {
+            const today = getBrasiliaDateString();
+            document.getElementById('dateSelector').value = today;
+            gameState.selectedDate = today;
+            updateSelectedDateInfo();
+            updateTaskList();
+        }
+
+        function selectTomorrow() {
+            const tomorrow = new Date(getBrasiliaDate());
+            tomorrow.setDate(tomorrow.getDate() + 1);
+            const tomorrowString = tomorrow.toISOString().split('T')[0];
+            document.getElementById('dateSelector').value = tomorrowString;
+            gameState.selectedDate = tomorrowString;
+            updateSelectedDateInfo();
+            updateTaskList();
+        }
+
+        function updateSelectedDateInfo() {
+            const selectedDate = gameState.selectedDate || getBrasiliaDateString();
+            const today = getBrasiliaDateString();
+            const tomorrow = new Date(getBrasiliaDate());
+            tomorrow.setDate(tomorrow.getDate() + 1);
+            const tomorrowString = tomorrow.toISOString().split('T')[0];
+            
+            let dateText = '';
+            if (selectedDate === today) {
+                dateText = 'Mostrando missões de hoje';
+            } else if (selectedDate === tomorrowString) {
+                dateText = 'Mostrando missões de amanhã';
+            } else {
+                const date = new Date(selectedDate + 'T00:00:00');
+                dateText = `Mostrando missões de ${date.toLocaleDateString('pt-BR')}`;
+            }
+            
+            document.getElementById('selectedDateInfo').textContent = dateText;
+        }
+
+        // Função de recuperação de senha
+        function showPasswordRecovery() {
+            document.getElementById('loginForm').classList.add('hidden');
+            document.getElementById('registerForm').classList.add('hidden');
+            document.getElementById('recoveryForm').classList.remove('hidden');
+        }
+
+        function recoverPassword() {
+            const username = document.getElementById('recoveryUsername').value.trim().toLowerCase();
+            const name = document.getElementById('recoveryName').value.trim().toUpperCase();
+            const age = parseInt(document.getElementById('recoveryAge').value);
+            
+            if (!username || !name || !age) {
+                alert('⚠️ Por favor, preencha todos os campos!');
+                return;
+            }
+            
+            const userKey = `taskforce-user-${username}`;
+            const existingUser = localStorage.getItem(userKey);
+            
+            if (!existingUser) {
+                alert('⚠️ Usuário não encontrado!');
+                return;
+            }
+            
+            const userData = JSON.parse(existingUser);
+            
+            if (userData.user.name === name && userData.user.age === age) {
+                alert(`🔑 Sua senha é: ${userData.user.password}\n\nAnote em um local seguro!`);
+                showLogin();
+                document.getElementById('recoveryUsername').value = '';
+                document.getElementById('recoveryName').value = '';
+                document.getElementById('recoveryAge').value = '';
+            } else {
+                alert('⚠️ Os dados informados não conferem com o cadastro!');
+            }
+        }
+
+        // Sistema de Reset Diário Automático
         function checkDailyReset() {
             const brasiliaDate = getBrasiliaDate();
             const today = brasiliaDate.toDateString();
             
             if (!gameState.user.lastDailyReset || gameState.user.lastDailyReset !== today) {
-                // É um novo dia, fazer reset das tarefas do dia anterior
                 if (gameState.user.lastDailyReset) {
                     performDailyReset();
                 }
@@ -881,7 +1065,6 @@
                 saveGameState();
             }
             
-            // Agenda próximo reset para 23:59:59 (Brasília)
             scheduleNextDailyReset();
         }
 
@@ -891,7 +1074,6 @@
             yesterday.setDate(yesterday.getDate() - 1);
             const yesterdayString = yesterday.toISOString().split('T')[0];
             
-            // Remove tarefas não completadas do dia anterior
             const tasksToRemove = gameState.tasks.filter(task => 
                 task.date === yesterdayString && !task.completed
             );
@@ -903,13 +1085,16 @@
                 
                 showDailyResetNotification(tasksToRemove.length);
             }
+            
+            generateFixedTasks();
+            saveGameState();
         }
 
         function scheduleNextDailyReset() {
             const brasiliaDate = getBrasiliaDate();
             const tomorrow = new Date(brasiliaDate);
             tomorrow.setDate(tomorrow.getDate() + 1);
-            tomorrow.setHours(0, 0, 0, 0); // Meia-noite
+            tomorrow.setHours(0, 0, 0, 0);
             
             const timeUntilReset = tomorrow.getTime() - brasiliaDate.getTime();
             
@@ -937,17 +1122,23 @@
 
         // Inicialização
         function initializeApp() {
-            // Define data de hoje (Brasília) como padrão
             const today = getBrasiliaDateString();
             const taskDateInput = document.getElementById('taskDate');
             if (taskDateInput) {
                 taskDateInput.value = today;
             }
             
-            // Verifica reset diário
-            checkDailyReset();
+            if (!gameState.selectedDate) {
+                gameState.selectedDate = today;
+                const dateSelector = document.getElementById('dateSelector');
+                if (dateSelector) {
+                    dateSelector.value = today;
+                }
+            }
             
-            // Debug: Mostra horário atual de Brasília
+            checkDailyReset();
+            updateSelectedDateInfo();
+            
             console.log(`🇧🇷 Horário de Brasília: ${getBrasiliaDate().toLocaleString('pt-BR')}`);
             console.log(`📅 Data atual: ${today}`);
         }
@@ -977,13 +1168,13 @@
                     
                 case 'progress':
                     confirmTitle.textContent = '📊 RESET DE PROGRESSO';
-                    confirmMessage.textContent = 'Seu XP, patente, combo e conquistas serão zerados. Suas tarefas atuais serão mantidas.';
+                    confirmMessage.textContent = 'Seu XP, patente, constância e conquistas serão zerados. Suas tarefas atuais serão mantidas.';
                     confirmWarning.textContent = 'Todo seu progresso será perdido!';
                     break;
                     
                 case 'everything':
                     confirmTitle.textContent = '💥 RESET COMPLETO';
-                    confirmMessage.textContent = 'TUDO será removido: tarefas, XP, patente, combo e conquistas. Apenas seus dados pessoais (nome, idade, etc.) serão mantidos.';
+                    confirmMessage.textContent = 'TUDO será removido: tarefas, XP, patente, constância e conquistas. Apenas seus dados pessoais (nome, idade, etc.) serão mantidos.';
                     confirmWarning.textContent = 'ATENÇÃO: Você voltará ao estado inicial!';
                     break;
                     
@@ -1016,20 +1207,20 @@
             
             switch(type) {
                 case 'tasks':
-                    // Reset apenas tarefas
                     gameState.tasks = [];
+                    gameState.fixedTasks = [];
                     showResetSuccess('📋 Tarefas removidas com sucesso!', 'Seu progresso e patente foram mantidos.');
                     break;
                     
                 case 'progress':
-                    // Reset progresso
                     gameState.user.xp = 0;
                     gameState.user.tasksCompleted = 0;
-                    gameState.user.combo = 0;
+                    gameState.user.constancia = 0;
+                    gameState.user.constanciaGoal = 5;
+                    gameState.user.constanciaAchievements = 0;
                     gameState.user.rank = 'recruta';
                     gameState.user.lastTaskDate = null;
                     
-                    // Reset achievements
                     document.querySelectorAll('[id^="achievement-"]').forEach(achievement => {
                         achievement.classList.add('opacity-50');
                         achievement.classList.remove('pulse-glow');
@@ -1039,25 +1230,22 @@
                     break;
                     
                 case 'everything':
-                    // PRESTIGE RESET - Salva dados para histórico
                     const resetData = {
                         date: new Date().toISOString(),
                         xp: gameState.user.xp,
                         tasksCompleted: gameState.user.tasksCompleted,
-                        combo: gameState.user.combo,
+                        combo: gameState.user.constancia,
                         rank: gameState.user.rank,
                         totalTasks: gameState.tasks.length,
                         completedTasks: gameState.tasks.filter(t => t.completed).length
                     };
                     
-                    // Atualiza estatísticas de prestígio
                     gameState.user.totalLifetimeXP += gameState.user.xp;
                     gameState.user.totalLifetimeTasks += gameState.user.tasksCompleted;
                     gameState.user.totalResets += 1;
                     
-                    // Atualiza recordes
-                    if (gameState.user.combo > gameState.user.maxComboEver) {
-                        gameState.user.maxComboEver = gameState.user.combo;
+                    if (gameState.user.constancia > gameState.user.maxComboEver) {
+                        gameState.user.maxComboEver = gameState.user.constancia;
                     }
                     
                     const currentRankIndex = ranks.findIndex(r => r.name === gameState.user.rank);
@@ -1066,13 +1254,9 @@
                         gameState.user.highestRankEver = gameState.user.rank;
                     }
                     
-                    // Adiciona ao histórico
                     gameState.resetHistory.unshift(resetData);
-                    
-                    // Atualiza patente de prestígio
                     updatePrestigeRank();
                     
-                    // Reset completo (mantém dados pessoais e prestígio)
                     const personalData = {
                         name: gameState.user.name,
                         username: gameState.user.username,
@@ -1081,7 +1265,6 @@
                         age: gameState.user.age,
                         weight: gameState.user.weight,
                         profession: gameState.user.profession,
-                        // Mantém dados de prestígio
                         totalResets: gameState.user.totalResets,
                         prestigeRank: gameState.user.prestigeRank,
                         totalLifetimeXP: gameState.user.totalLifetimeXP,
@@ -1095,15 +1278,17 @@
                         ...personalData,
                         xp: 0,
                         tasksCompleted: 0,
-                        combo: 0,
+                        constancia: 0,
+                        constanciaGoal: 5,
+                        constanciaAchievements: 0,
                         lastTaskDate: null,
                         rank: 'recruta'
                     };
                     
                     gameState.tasks = [];
-                    gameState.currentFilter = 'all';
+                    gameState.fixedTasks = [];
+                    gameState.currentFilter = 'today';
                     
-                    // Reset achievements
                     document.querySelectorAll('[id^="achievement-"]').forEach(achievement => {
                         achievement.classList.add('opacity-50');
                         achievement.classList.remove('pulse-glow');
@@ -1113,26 +1298,20 @@
                     break;
                     
                 case 'account':
-                    // Deletar conta completamente
                     const userKey = `taskforce-user-${gameState.currentUser}`;
                     localStorage.removeItem(userKey);
                     
                     alert('🗑️ Conta deletada com sucesso!\n\nVocê será redirecionado para a tela de login.');
-                    
-                    // Redirect to login
                     logout();
                     return;
             }
             
-            // Save changes and update display
             saveGameState();
             updateDisplay();
             closeResetConfirm();
         }
 
         function updatePrestigeRank() {
-            const currentPrestigeIndex = prestigeRanks.findIndex(r => r.name === gameState.user.prestigeRank);
-            
             for (let i = prestigeRanks.length - 1; i >= 0; i--) {
                 if (gameState.user.totalResets >= prestigeRanks[i].resets) {
                     if (prestigeRanks[i].name !== gameState.user.prestigeRank) {
@@ -1180,7 +1359,6 @@
         }
 
         function showResetSuccess(title, message) {
-            // Create success notification
             const notification = document.createElement('div');
             notification.className = 'fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-green-600 text-white p-6 rounded-lg shadow-2xl z-50 military-font text-center max-w-md';
             notification.innerHTML = `
@@ -1194,12 +1372,6 @@
             }, 3000);
         }
 
-        // Initialize
-        function init() {
-            loadGameState();
-            updateDisplay();
-        }
-
         // Login/Register System
         function showRegister() {
             document.getElementById('loginForm').classList.add('hidden');
@@ -1208,6 +1380,7 @@
 
         function showLogin() {
             document.getElementById('registerForm').classList.add('hidden');
+            document.getElementById('recoveryForm').classList.add('hidden');
             document.getElementById('loginForm').classList.remove('hidden');
         }
 
@@ -1220,7 +1393,6 @@
             const password = document.getElementById('regPassword').value.trim();
             const confirmPassword = document.getElementById('regConfirmPassword').value.trim();
 
-            // Validations
             if (!name || !age || !weight || !profession || !username || !password) {
                 alert('⚠️ Por favor, preencha todos os campos!');
                 return;
@@ -1251,14 +1423,12 @@
                 return;
             }
 
-            // Check if username already exists
             const userKey = `taskforce-user-${username.toLowerCase()}`;
             if (localStorage.getItem(userKey)) {
                 alert('⚠️ Este nick já está em uso! Escolha outro.');
                 return;
             }
 
-            // Create new user
             gameState.user = {
                 name: name.toUpperCase(),
                 username: username.toLowerCase(),
@@ -1269,40 +1439,36 @@
                 profession: profession,
                 xp: 0,
                 tasksCompleted: 0,
-                combo: 0,
+                constancia: 0,
                 lastTaskDate: null,
                 rank: 'recruta',
-                // Campos de prestígio
                 totalResets: 0,
                 prestigeRank: 'bronze1',
                 totalLifetimeXP: 0,
                 totalLifetimeTasks: 0,
                 maxComboEver: 0,
                 highestRankEver: 'recruta',
-                lastDailyReset: null
+                lastDailyReset: null,
+                constanciaGoal: 5,
+                constanciaAchievements: 0
             };
             
             gameState.tasks = [];
+            gameState.fixedTasks = [];
             gameState.currentFilter = 'today';
             gameState.currentUser = username.toLowerCase();
             gameState.resetHistory = [];
             gameState.customCategories = {};
             gameState.version = "2.0";
 
-            // Save user data
             saveGameState();
 
-            // Show success and redirect to login
             alert('🎖️ ALISTAMENTO CONCLUÍDO! Bem-vindo ao TaskForce, soldado!');
             
-            // Auto login
             document.getElementById('loginScreen').classList.add('hidden');
             document.getElementById('dashboard').classList.remove('hidden');
             
-            // Inicializa sistema após registro
             initializeApp();
-            updateCategoryFilters();
-            updateCategorySelector();
             updateDisplay();
         }
 
@@ -1315,28 +1481,23 @@
                 return;
             }
 
-            // Try to load existing user data
             const userKey = `taskforce-user-${username.toLowerCase()}`;
             const existingUser = localStorage.getItem(userKey);
             
             if (existingUser) {
                 let userData = JSON.parse(existingUser);
                 
-                // Check password
                 if (userData.user.password !== password) {
                     alert('⚠️ Senha incorreta!');
                     return;
                 }
                 
-                // Migra dados antigos para nova versão
                 userData = migrateUserData(userData);
                 
-                // Load existing user
                 gameState = userData;
                 gameState.currentUser = username.toLowerCase();
                 gameState.currentFilter = 'today';
                 
-                // Salva dados migrados
                 saveGameState();
                 
                 console.log(`Bem-vindo de volta, ${gameState.user.name}!`);
@@ -1344,10 +1505,7 @@
                 document.getElementById('loginScreen').classList.add('hidden');
                 document.getElementById('dashboard').classList.remove('hidden');
                 
-                // Inicializa sistema após login
                 initializeApp();
-                updateCategoryFilters();
-                updateCategorySelector();
                 updateDisplay();
             } else {
                 alert('⚠️ Usuário não encontrado! Cadastre-se primeiro.');
@@ -1360,7 +1518,6 @@
             document.getElementById('loginUsername').value = '';
             document.getElementById('loginPassword').value = '';
             
-            // Clear register form
             document.getElementById('regName').value = '';
             document.getElementById('regAge').value = '';
             document.getElementById('regWeight').value = '';
@@ -1369,13 +1526,11 @@
             document.getElementById('regPassword').value = '';
             document.getElementById('regConfirmPassword').value = '';
             
-            // Close any open modals
             closeResetMenu();
             closeResetConfirm();
             closeProfile();
             closeHistory();
             
-            // Show login form
             showLogin();
         }
 
@@ -1383,7 +1538,7 @@
         function addTask() {
             const title = document.getElementById('taskTitle').value.trim();
             const categorySelect = document.getElementById('taskCategory');
-            const taskDate = document.getElementById('taskDate').value;
+            const taskType = document.getElementById('taskType').value;
             let category = categorySelect.value;
             
             if (!title) {
@@ -1391,65 +1546,140 @@
                 return;
             }
 
-            if (!taskDate) {
-                alert('Selecione uma data para a missão!');
-                return;
-            }
-            
-            // Se é categoria personalizada
-            if (category === 'custom') {
-                const customName = document.getElementById('customCategory').value.trim();
-                const selectedEmoji = document.getElementById('selectedEmoji').value;
+            if (taskType === 'fixed') {
+                const fixedDaysInput = document.getElementById('fixedTaskDays').value.trim();
                 
-                if (!customName) {
-                    alert('Digite o nome da nova categoria!');
+                if (!fixedDaysInput) {
+                    alert('Digite os dias do mês para a tarefa fixa!');
                     return;
                 }
                 
-                // Cria ID único para a categoria
-                const categoryId = customName.toLowerCase().replace(/\s+/g, '_');
-                category = categoryId;
+                const availableSlots = 1 + gameState.user.totalResets;
+                const usedSlots = gameState.fixedTasks ? gameState.fixedTasks.length : 0;
                 
-                // Salva a categoria personalizada
-                if (!gameState.customCategories) {
-                    gameState.customCategories = {};
+                if (usedSlots >= availableSlots) {
+                    alert(`⚠️ Você atingiu o limite de ${availableSlots} tarefa(s) fixa(s)!\n\nFaça um Reset Completo para ganhar mais slots.`);
+                    return;
                 }
-                gameState.customCategories[categoryId] = {
-                    name: customName,
-                    emoji: selectedEmoji,
-                    display: `${selectedEmoji} ${customName}`
+                
+                try {
+                    const days = fixedDaysInput.split(',').map(day => {
+                        const dayNum = parseInt(day.trim());
+                        if (dayNum < 1 || dayNum > 31) {
+                            throw new Error(`Dia inválido: ${day}`);
+                        }
+                        return dayNum;
+                    });
+                    
+                    if (days.length === 0) {
+                        alert('Digite pelo menos um dia válido!');
+                        return;
+                    }
+                    
+                    if (category === 'custom') {
+                        const customName = document.getElementById('customCategory').value.trim();
+                        const selectedEmoji = document.getElementById('selectedEmoji').value;
+                        
+                        if (!customName) {
+                            alert('Digite o nome da nova categoria!');
+                            return;
+                        }
+                        
+                        const categoryId = customName.toLowerCase().replace(/\s+/g, '_');
+                        category = categoryId;
+                        
+                        if (!gameState.customCategories) {
+                            gameState.customCategories = {};
+                        }
+                        gameState.customCategories[categoryId] = {
+                            name: customName,
+                            emoji: selectedEmoji,
+                            display: `${selectedEmoji} ${customName}`
+                        };
+                        
+                        document.getElementById('customCategory').value = '';
+                        categorySelect.value = categoryId;
+                        toggleCustomCategory();
+                    }
+                    
+                    if (!gameState.fixedTasks) gameState.fixedTasks = [];
+                    
+                    const fixedTask = {
+                        id: Date.now(),
+                        title: title,
+                        category: category,
+                        days: days,
+                        createdAt: new Date()
+                    };
+                    
+                    gameState.fixedTasks.push(fixedTask);
+                    
+                    generateFixedTasks();
+                    
+                    document.getElementById('taskTitle').value = '';
+                    document.getElementById('fixedTaskDays').value = '';
+                    document.getElementById('taskType').value = 'normal';
+                    toggleTaskType();
+                    
+                    alert(`✅ Tarefa fixa criada!\n\nSerá gerada automaticamente nos dias: ${days.join(', ')}`);
+                    
+                } catch (error) {
+                    alert(`⚠️ Erro nos dias informados: ${error.message}\n\nUse apenas números de 1 a 31, separados por vírgula.`);
+                    return;
+                }
+                
+            } else {
+                const taskDate = document.getElementById('taskDate').value;
+                
+                if (!taskDate) {
+                    alert('Selecione uma data para a missão!');
+                    return;
+                }
+            
+                if (category === 'custom') {
+                    const customName = document.getElementById('customCategory').value.trim();
+                    const selectedEmoji = document.getElementById('selectedEmoji').value;
+                    
+                    if (!customName) {
+                        alert('Digite o nome da nova categoria!');
+                        return;
+                    }
+                    
+                    const categoryId = customName.toLowerCase().replace(/\s+/g, '_');
+                    category = categoryId;
+                    
+                    if (!gameState.customCategories) {
+                        gameState.customCategories = {};
+                    }
+                    gameState.customCategories[categoryId] = {
+                        name: customName,
+                        emoji: selectedEmoji,
+                        display: `${selectedEmoji} ${customName}`
+                    };
+                    
+                    document.getElementById('customCategory').value = '';
+                    categorySelect.value = categoryId;
+                    toggleCustomCategory();
+                }
+                
+                const task = {
+                    id: Date.now(),
+                    title: title,
+                    category: category,
+                    date: taskDate,
+                    completed: false,
+                    createdAt: new Date()
                 };
                 
-                // Atualiza os filtros
-                updateCategoryFilters();
+                gameState.tasks.push(task);
+                document.getElementById('taskTitle').value = '';
+                document.getElementById('taskDate').value = getBrasiliaDateString();
                 
-                // Adiciona a nova categoria ao seletor
-                updateCategorySelector();
-                
-                // Limpa o campo
-                document.getElementById('customCategory').value = '';
-                categorySelect.value = categoryId; // Mantém a categoria criada selecionada
-                toggleCustomCategory();
+                showTaskAdded(title, taskDate);
             }
-            
-            const task = {
-                id: Date.now(),
-                title: title,
-                category: category,
-                date: taskDate,
-                completed: false,
-                createdAt: new Date()
-            };
-            
-            gameState.tasks.push(task);
-            document.getElementById('taskTitle').value = '';
-            document.getElementById('taskDate').value = getBrasiliaDateString();
             
             updateTaskList();
             saveGameState();
-            
-            // Feedback visual
-            showTaskAdded(title, taskDate);
         }
 
         function showTaskAdded(title, date) {
@@ -1489,38 +1719,57 @@
                 task.completed = true;
                 task.completedAt = new Date();
                 
-                // Award XP
                 gameState.user.xp += 1;
                 gameState.user.tasksCompleted += 1;
                 
-                // Update combo
-                updateCombo();
-                
-                // Check for daily missions
+                updateConstancia();
                 checkDailyMissions();
-                
-                // Check for achievements
                 checkAchievements();
-                
-                // Update rank
                 updateRank();
                 
                 updateDisplay();
                 updateTaskList();
                 saveGameState();
                 
-                // Visual feedback
                 showXPGain(1);
             }
         }
 
         function deleteTask(taskId) {
+            if (gameState.user.xp >= 10) {
+                gameState.user.xp -= 10;
+                showXPLoss(10);
+            } else {
+                const lostXP = gameState.user.xp;
+                gameState.user.xp = 0;
+                if (lostXP > 0) {
+                    showXPLoss(lostXP);
+                }
+            }
+            
             gameState.tasks = gameState.tasks.filter(t => t.id !== taskId);
+            updateDisplay();
             updateTaskList();
             saveGameState();
         }
 
-        function updateCombo() {
+        function showXPLoss(xp) {
+            const notification = document.createElement('div');
+            notification.className = 'fixed top-20 right-6 bg-red-600 text-white px-4 py-2 rounded-lg shadow-lg z-50 transform transition-all duration-1000';
+            notification.innerHTML = `⚠️ -${xp} XP (Exclusão de Missão)`;
+            document.body.appendChild(notification);
+            
+            setTimeout(() => {
+                notification.style.transform = 'translateY(-50px)';
+                notification.style.opacity = '0';
+            }, 100);
+            
+            setTimeout(() => {
+                document.body.removeChild(notification);
+            }, 3000);
+        }
+
+        function updateConstancia() {
             const brasiliaDate = getBrasiliaDate();
             const today = brasiliaDate.toDateString();
             const lastTaskDate = gameState.user.lastTaskDate;
@@ -1530,13 +1779,30 @@
                 yesterday.setDate(yesterday.getDate() - 1);
                 
                 if (lastTaskDate === yesterday.toDateString()) {
-                    gameState.user.combo += 1;
+                    gameState.user.constancia += 1;
+                    
+                    if (gameState.user.constancia >= gameState.user.constanciaGoal) {
+                        gameState.user.constanciaAchievements += 1;
+                        gameState.user.constanciaGoal *= 2;
+                        showConstanciaAchievement();
+                    }
                 } else if (lastTaskDate !== today) {
-                    gameState.user.combo = 1;
+                    gameState.user.constancia = 1;
                 }
                 
                 gameState.user.lastTaskDate = today;
             }
+        }
+
+        function showConstanciaAchievement() {
+            const notification = document.createElement('div');
+            notification.className = 'fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-orange-600 text-white px-8 py-4 rounded-lg shadow-2xl z-50 military-font text-xl font-bold';
+            notification.innerHTML = `🔥 META DE CONSTÂNCIA ALCANÇADA!\nPróxima meta: ${gameState.user.constanciaGoal} dias`;
+            document.body.appendChild(notification);
+            
+            setTimeout(() => {
+                document.body.removeChild(notification);
+            }, 4000);
         }
 
         function checkDailyMissions() {
@@ -1546,7 +1812,6 @@
                 t.completed && new Date(t.completedAt.toLocaleString("en-US", {timeZone: "America/Sao_Paulo"})).toDateString() === today
             ).length;
             
-            // Mission 1: Complete 3 tasks today
             const mission1Progress = Math.min(todayTasks / 3 * 100, 100);
             document.getElementById('mission1Progress').style.width = mission1Progress + '%';
             
@@ -1555,7 +1820,6 @@
                 showXPGain(2, 'Missão Diária Completa!');
             }
             
-            // Mission 2: Complete 1 task before 10 AM
             const earlyTasks = gameState.tasks.filter(t => 
                 t.completed && 
                 new Date(t.completedAt.toLocaleString("en-US", {timeZone: "America/Sao_Paulo"})).toDateString() === today &&
@@ -1565,36 +1829,31 @@
             const mission2Progress = earlyTasks > 0 ? 100 : 0;
             document.getElementById('mission2Progress').style.width = mission2Progress + '%';
             
-            // Mission 3: 5-day combo
-            const mission3Progress = Math.min(gameState.user.combo / 5 * 100, 100);
+            const mission3Progress = Math.min(gameState.user.constancia / gameState.user.constanciaGoal * 100, 100);
             document.getElementById('mission3Progress').style.width = mission3Progress + '%';
             
-            if (gameState.user.combo >= 5 && mission3Progress === 100) {
+            if (gameState.user.constancia >= gameState.user.constanciaGoal && mission3Progress === 100) {
                 gameState.user.xp += 5;
-                showXPGain(5, 'Combo de 5 Dias!');
+                showXPGain(5, `Constância de ${gameState.user.constanciaGoal} Dias!`);
             }
         }
 
         function checkAchievements() {
-            // First Mission
             if (gameState.user.tasksCompleted >= 1) {
                 document.getElementById('achievement-first').classList.remove('opacity-50');
                 document.getElementById('achievement-first').classList.add('pulse-glow');
             }
             
-            // 5-day streak
-            if (gameState.user.combo >= 5) {
+            if (gameState.user.constancia >= 5) {
                 document.getElementById('achievement-streak').classList.remove('opacity-50');
                 document.getElementById('achievement-streak').classList.add('pulse-glow');
             }
             
-            // 100 missions
             if (gameState.user.tasksCompleted >= 100) {
                 document.getElementById('achievement-hundred').classList.remove('opacity-50');
                 document.getElementById('achievement-hundred').classList.add('pulse-glow');
             }
             
-            // General rank
             if (gameState.user.rank === 'general') {
                 document.getElementById('achievement-general').classList.remove('opacity-50');
                 document.getElementById('achievement-general').classList.add('pulse-glow');
@@ -1612,7 +1871,6 @@
         }
 
         function showXPGain(xp, message = '') {
-            // Create floating XP notification
             const notification = document.createElement('div');
             notification.className = 'fixed top-20 right-6 bg-green-600 text-white px-4 py-2 rounded-lg shadow-lg z-50 transform transition-all duration-1000';
             notification.innerHTML = `+${xp} XP ${message}`;
@@ -1639,258 +1897,154 @@
             }, 3000);
         }
 
-        // Filter Tasks
-        function filterTasks(category) {
-            gameState.currentFilter = category;
-            
-            // Update filter buttons
-            document.querySelectorAll('.filter-btn').forEach(btn => {
-                btn.classList.remove('bg-blue-600', 'bg-green-600', 'bg-purple-600');
-                btn.classList.add('bg-gray-600');
-            });
-            
-            if (category === 'today') {
-                event.target.classList.remove('bg-gray-600');
-                event.target.classList.add('bg-green-600');
-            } else if (category === 'future') {
-                event.target.classList.remove('bg-gray-600');
-                event.target.classList.add('bg-purple-600');
+        function getCategoryDisplay(category) {
+            if (categoryIcons[category]) {
+                return `${categoryIcons[category]} ${category.charAt(0).toUpperCase() + category.slice(1)}`;
+            } else if (gameState.customCategories && gameState.customCategories[category]) {
+                return gameState.customCategories[category].display;
             } else {
-                event.target.classList.remove('bg-gray-600');
-                event.target.classList.add('bg-blue-600');
+                return `📋 ${category}`;
             }
-            
-            updateTaskList();
-        }
-
-        function updateCategorySelector() {
-            const categorySelect = document.getElementById('taskCategory');
-            if (!categorySelect) return;
-            
-            // Salva o valor atual
-            const currentValue = categorySelect.value;
-            
-            // HTML base das categorias padrão
-            let optionsHTML = `
-                <option value="trabalho">💼 Trabalho</option>
-                <option value="pessoal">🏠 Pessoal</option>
-                <option value="estudos">📚 Estudos</option>
-                <option value="saude">💪 Saúde</option>
-            `;
-            
-            // Adiciona categorias personalizadas
-            if (gameState.customCategories) {
-                Object.keys(gameState.customCategories).forEach(categoryId => {
-                    const category = gameState.customCategories[categoryId];
-                    optionsHTML += `<option value="${categoryId}">${category.display}</option>`;
-                });
-            }
-            
-            // Adiciona opção de nova categoria no final
-            optionsHTML += `<option value="custom">✨ Nova Categoria</option>`;
-            
-            categorySelect.innerHTML = optionsHTML;
-            
-            // Restaura o valor se ainda existir
-            if (currentValue && categorySelect.querySelector(`option[value="${currentValue}"]`)) {
-                categorySelect.value = currentValue;
-            }
-        }
-
-        function updateCategoryFilters() {
-            const filtersContainer = document.getElementById('categoryFilters');
-            if (!filtersContainer) return;
-            
-            // Botões fixos - "Hoje" como padrão ativo
-            let filtersHTML = `
-                <button onclick="filterTasks('all')" class="filter-btn bg-gray-600 hover:bg-blue-700 px-3 py-1 rounded-full text-xs transition duration-300">Todas</button>
-                <button onclick="filterTasks('today')" class="filter-btn bg-green-600 hover:bg-green-700 px-3 py-1 rounded-full text-xs transition duration-300">📅 Hoje</button>
-                <button onclick="filterTasks('future')" class="filter-btn bg-gray-600 hover:bg-purple-700 px-3 py-1 rounded-full text-xs transition duration-300">🔮 Futuras</button>
-                <button onclick="filterTasks('trabalho')" class="filter-btn bg-gray-600 hover:bg-gray-700 px-3 py-1 rounded-full text-xs transition duration-300">💼 Trabalho</button>
-                <button onclick="filterTasks('pessoal')" class="filter-btn bg-gray-600 hover:bg-gray-700 px-3 py-1 rounded-full text-xs transition duration-300">🏠 Pessoal</button>
-                <button onclick="filterTasks('estudos')" class="filter-btn bg-gray-600 hover:bg-gray-700 px-3 py-1 rounded-full text-xs transition duration-300">📚 Estudos</button>
-                <button onclick="filterTasks('saude')" class="filter-btn bg-gray-600 hover:bg-gray-700 px-3 py-1 rounded-full text-xs transition duration-300">💪 Saúde</button>
-            `;
-            
-            // Adiciona categorias personalizadas
-            if (gameState.customCategories) {
-                Object.keys(gameState.customCategories).forEach(categoryId => {
-                    const category = gameState.customCategories[categoryId];
-                    filtersHTML += `<button onclick="filterTasks('${categoryId}')" class="filter-btn bg-gray-600 hover:bg-gray-700 px-3 py-1 rounded-full text-xs transition duration-300">${category.display}</button>`;
-                });
-            }
-            
-            filtersContainer.innerHTML = filtersHTML;
         }
 
         function updateTaskList() {
             const taskList = document.getElementById('taskList');
+            const selectedDate = gameState.selectedDate || getBrasiliaDateString();
             const today = getBrasiliaDateString();
             
-            let filteredTasks = [];
-            
-            if (gameState.currentFilter === 'all') {
-                filteredTasks = gameState.tasks;
-            } else if (gameState.currentFilter === 'today') {
-                filteredTasks = gameState.tasks.filter(t => t.date === today);
-            } else if (gameState.currentFilter === 'future') {
-                filteredTasks = gameState.tasks.filter(t => t.date > today);
-            } else {
-                filteredTasks = gameState.tasks.filter(t => t.category === gameState.currentFilter);
-            }
+            const filteredTasks = gameState.tasks.filter(t => t.date === selectedDate);
             
             if (filteredTasks.length === 0) {
-                let emptyMessage = 'Nenhuma missão encontrada';
-                if (gameState.currentFilter === 'today') {
+                let emptyMessage = 'Nenhuma missão encontrada para esta data';
+                if (selectedDate === today) {
                     emptyMessage = '📅 Nenhuma missão para hoje. Que tal adicionar uma?';
-                } else if (gameState.currentFilter === 'future') {
-                    emptyMessage = '🔮 Nenhuma missão futura agendada.';
                 }
                 taskList.innerHTML = `<div class="text-center text-gray-400 py-8">${emptyMessage}</div>`;
                 return;
             }
             
-            // Ordena tarefas por data
-            filteredTasks.sort((a, b) => new Date(a.date) - new Date(b.date));
+            filteredTasks.sort((a, b) => {
+                const dateCompare = new Date(a.date) - new Date(b.date);
+                if (dateCompare !== 0) return dateCompare;
+                return new Date(a.createdAt) - new Date(b.createdAt);
+            });
             
             taskList.innerHTML = filteredTasks.map(task => {
-                const taskDate = new Date(task.date + 'T00:00:00');
                 const isToday = task.date === today;
                 const isPast = task.date < today;
                 const categoryDisplay = getCategoryDisplay(task.category);
+                const isFromFixed = task.isFromFixed ? ' 🔄' : '';
                 
                 return `
                     <div class="task-item p-4 rounded-lg ${task.completed ? 'opacity-50' : ''} ${isPast && !task.completed ? 'border-l-red-500' : isToday ? 'border-l-green-500' : 'border-l-blue-500'}">
-                        <div class="flex items-center justify-between">
-                            <div class="flex items-center space-x-3">
-                                <button onclick="completeTask(${task.id})" 
-                                        class="w-6 h-6 rounded-full border-2 ${task.completed ? 'bg-green-600 border-green-600' : 'border-gray-400 hover:border-green-400'} 
-                                               flex items-center justify-center transition duration-300"
-                                        ${task.completed ? 'disabled' : ''}>
-                                    ${task.completed ? '✓' : ''}
-                                </button>
-                                <div>
-                                    <div class="font-medium ${task.completed ? 'line-through' : ''}">${task.title}</div>
-                                    <div class="text-sm text-gray-400 flex items-center space-x-2">
-                                        <span>${categoryDisplay}</span>
-                                        <span>•</span>
-                                        <span class="${isPast && !task.completed ? 'text-red-400' : isToday ? 'text-green-400' : 'text-blue-400'}">
-                                            ${formatDate(task.date)}
-                                        </span>
-                                        ${isPast && !task.completed ? '<span class="text-red-400 text-xs">⚠️ Atrasada</span>' : ''}
-                                    </div>
+                        <div class="flex justify-between items-start">
+                            <div class="flex-1">
+                                <div class="flex items-center space-x-2 mb-2">
+                                    <span class="text-xs px-2 py-1 bg-gray-600 rounded-full">${categoryDisplay}</span>
+                                    ${isFromFixed ? '<span class="text-xs px-2 py-1 bg-blue-600 rounded-full">Auto</span>' : ''}
+                                    ${isPast && !task.completed ? '<span class="text-xs px-2 py-1 bg-red-600 rounded-full">Atrasada</span>' : ''}
+                                    ${isToday ? '<span class="text-xs px-2 py-1 bg-green-600 rounded-full">Hoje</span>' : ''}
                                 </div>
+                                <h4 class="font-medium ${task.completed ? 'line-through text-gray-400' : ''}">${task.title}</h4>
+                                <p class="text-xs text-gray-400 mt-1">📅 ${formatDate(task.date)}</p>
                             </div>
-                            <button onclick="deleteTask(${task.id})" class="text-red-400 hover:text-red-300 transition duration-300">
-                                🗑️
-                            </button>
+                            <div class="flex space-x-2 ml-4">
+                                ${!task.completed ? `
+                                    <button onclick="completeTask(${task.id})" class="bg-green-600 hover:bg-green-700 text-white px-3 py-1 rounded text-sm transition duration-300">
+                                        ✅ Completar
+                                    </button>
+                                ` : `
+                                    <span class="text-green-400 text-sm font-bold">✅ Completa</span>
+                                `}
+                                <button onclick="deleteTask(${task.id})" class="bg-red-600 hover:bg-red-700 text-white px-3 py-1 rounded text-sm transition duration-300">
+                                    🗑️
+                                </button>
+                            </div>
                         </div>
                     </div>
                 `;
             }).join('');
         }
 
-        function getCategoryDisplay(categoryId) {
-            // Categorias padrão
-            const defaultCategories = {
-                trabalho: '💼 Trabalho',
-                pessoal: '🏠 Pessoal',
-                estudos: '📚 Estudos',
-                saude: '💪 Saúde'
-            };
+        function updateDisplay() {
+            // Update XP and rank
+            document.getElementById('currentXP').textContent = gameState.user.xp;
+            document.getElementById('tasksCompleted').textContent = gameState.user.tasksCompleted;
+            document.getElementById('constanciaCount').textContent = gameState.user.constancia;
             
-            if (defaultCategories[categoryId]) {
-                return defaultCategories[categoryId];
+            // Update prestige stats
+            document.getElementById('totalResets').textContent = gameState.user.totalResets;
+            document.getElementById('lifetimeTasks').textContent = gameState.user.totalLifetimeTasks;
+            
+            // Update constancia mission text
+            document.getElementById('constanciaMissionText').textContent = `Mantenha constância por ${gameState.user.constanciaGoal} dias`;
+            
+            // Update current rank
+            const currentRank = ranks.find(r => r.xp <= gameState.user.xp && 
+                (ranks.indexOf(r) === ranks.length - 1 || ranks[ranks.indexOf(r) + 1].xp > gameState.user.xp));
+            
+            if (currentRank) {
+                document.getElementById('currentRank').textContent = currentRank.display;
+                document.getElementById('currentRankMobile').textContent = currentRank.display;
+                
+                // Highlight current rank
+                document.querySelectorAll('[id^="rank-"]').forEach(el => {
+                    el.classList.remove('bg-yellow-600', 'text-black');
+                });
+                document.getElementById(`rank-${currentRank.name}`).classList.add('bg-yellow-600', 'text-black');
             }
             
-            // Categoria personalizada
-            if (gameState.customCategories && gameState.customCategories[categoryId]) {
-                return gameState.customCategories[categoryId].display;
+            // Update XP bar
+            const nextRank = ranks.find(r => r.xp > gameState.user.xp);
+            if (nextRank) {
+                document.getElementById('nextXP').textContent = nextRank.xp;
+                const progress = ((gameState.user.xp - currentRank.xp) / (nextRank.xp - currentRank.xp)) * 100;
+                document.getElementById('xpBar').style.width = Math.min(progress, 100) + '%';
+            } else {
+                document.getElementById('nextXP').textContent = 'MAX';
+                document.getElementById('xpBar').style.width = '100%';
             }
             
-            return '❓ Desconhecida';
-        }
-
-        // History System
-        function showHistory() {
-            updateHistoryDisplay();
-            document.getElementById('historyModal').classList.remove('hidden');
-        }
-
-        function closeHistory() {
-            document.getElementById('historyModal').classList.add('hidden');
-        }
-
-        function updateHistoryDisplay() {
-            // Current prestige info
+            // Update user display
+            document.getElementById('userDisplay').textContent = gameState.user.name;
+            document.getElementById('userDisplayMobile').textContent = gameState.user.name;
+            
+            // Update prestige display
             const currentPrestige = prestigeRanks.find(r => r.name === gameState.user.prestigeRank);
-            document.getElementById('historyPrestigeRank').textContent = currentPrestige.display;
-            document.getElementById('historyTotalResets').textContent = gameState.user.totalResets;
-            document.getElementById('historyLifetimeXP').textContent = gameState.user.totalLifetimeXP;
-            
-            // Next prestige progress
-            const currentPrestigeIndex = prestigeRanks.findIndex(r => r.name === gameState.user.prestigeRank);
-            const nextPrestige = prestigeRanks[currentPrestigeIndex + 1];
-            
-            if (nextPrestige) {
-                document.getElementById('nextPrestigeInfo').textContent = `${nextPrestige.display} (${nextPrestige.resets} resets)`;
-                const progress = ((gameState.user.totalResets - currentPrestige.resets) / (nextPrestige.resets - currentPrestige.resets)) * 100;
-                document.getElementById('prestigeProgressBar').style.width = Math.min(progress, 100) + '%';
-            } else {
-                document.getElementById('nextPrestigeInfo').textContent = 'MÁXIMO ALCANÇADO!';
-                document.getElementById('prestigeProgressBar').style.width = '100%';
+            if (currentPrestige) {
+                document.getElementById('prestigeDisplay').textContent = currentPrestige.display;
+                document.getElementById('prestigeDisplayMobile').textContent = currentPrestige.display;
             }
             
-            // Records
-            document.getElementById('recordLifetimeTasks').textContent = gameState.user.totalLifetimeTasks;
-            document.getElementById('recordMaxCombo').textContent = gameState.user.maxComboEver;
-            document.getElementById('recordHighestRank').textContent = ranks.find(r => r.name === gameState.user.highestRankEver).display.split(' ')[0];
-            document.getElementById('recordLifetimeXP').textContent = gameState.user.totalLifetimeXP;
+            // Update fixed task slots
+            updateFixedTaskSlots();
             
-            // Reset history
-            const historyList = document.getElementById('resetHistoryList');
-            
-            if (gameState.resetHistory.length === 0) {
-                historyList.innerHTML = '<div class="text-center text-gray-400 py-8">Nenhum reset realizado ainda</div>';
-            } else {
-                historyList.innerHTML = gameState.resetHistory.map((reset, index) => {
-                    const date = new Date(reset.date);
-                    const brasiliaDateTime = formatBrasiliaDateTime(date);
-                    const rankDisplay = ranks.find(r => r.name === reset.rank).display;
-                    
-                    return `
-                        <div class="bg-gray-600 rounded-lg p-4 border-l-4 border-purple-500">
-                            <div class="flex justify-between items-start mb-2">
-                                <div class="font-bold text-purple-400">Reset #${gameState.user.totalResets - index}</div>
-                                <div class="text-sm text-gray-300">${brasiliaDateTime.date} às ${brasiliaDateTime.time}</div>
-                            </div>
-                            <div class="grid grid-cols-2 md:grid-cols-4 gap-2 text-sm">
-                                <div class="text-center">
-                                    <div class="text-yellow-400 font-bold">${reset.xp}</div>
-                                    <div class="text-gray-400 text-xs">XP</div>
-                                </div>
-                                <div class="text-center">
-                                    <div class="text-green-400 font-bold">${reset.tasksCompleted}</div>
-                                    <div class="text-gray-400 text-xs">Missões</div>
-                                </div>
-                                <div class="text-center">
-                                    <div class="text-orange-400 font-bold">${reset.combo}</div>
-                                    <div class="text-gray-400 text-xs">Combo</div>
-                                </div>
-                                <div class="text-center">
-                                    <div class="text-blue-400 font-bold">${rankDisplay.split(' ')[0]}</div>
-                                    <div class="text-gray-400 text-xs">Patente</div>
-                                </div>
-                            </div>
-                        </div>
-                    `;
-                }).join('');
-            }
+            // Check achievements
+            checkAchievements();
         }
 
-        // Profile System
+        // Profile functions
         function showProfile() {
-            updateProfileDisplay();
+            document.getElementById('profileName').textContent = gameState.user.name;
+            document.getElementById('profileId').textContent = gameState.user.id;
+            
+            const currentRank = ranks.find(r => r.xp <= gameState.user.xp && 
+                (ranks.indexOf(r) === ranks.length - 1 || ranks[ranks.indexOf(r) + 1].xp > gameState.user.xp));
+            document.getElementById('profileRank').textContent = currentRank ? currentRank.display : '🔰 RECRUTA';
+            
+            document.getElementById('profileAge').textContent = `${gameState.user.age} anos`;
+            document.getElementById('profileWeight').textContent = `${gameState.user.weight} kg`;
+            document.getElementById('profileJob').textContent = gameState.user.profession;
+            document.getElementById('profileXP').textContent = gameState.user.xp;
+            
+            const nextRank = ranks.find(r => r.xp > gameState.user.xp);
+            if (nextRank && currentRank) {
+                const progress = ((gameState.user.xp - currentRank.xp) / (nextRank.xp - currentRank.xp)) * 100;
+                document.getElementById('profileXPBar').style.width = Math.min(progress, 100) + '%';
+            } else {
+                document.getElementById('profileXPBar').style.width = '100%';
+            }
+            
             document.getElementById('profileModal').classList.remove('hidden');
         }
 
@@ -1898,180 +2052,129 @@
             document.getElementById('profileModal').classList.add('hidden');
         }
 
+        // History functions
+        function showHistory() {
+            const currentPrestige = prestigeRanks.find(r => r.name === gameState.user.prestigeRank);
+            document.getElementById('historyPrestigeRank').textContent = currentPrestige ? currentPrestige.display : '🥉 BRONZE I';
+            document.getElementById('historyTotalResets').textContent = gameState.user.totalResets;
+            document.getElementById('historyLifetimeXP').textContent = gameState.user.totalLifetimeXP;
+            
+            // Next prestige info
+            const nextPrestige = prestigeRanks.find(r => r.resets > gameState.user.totalResets);
+            if (nextPrestige) {
+                document.getElementById('nextPrestigeInfo').textContent = `${nextPrestige.display} (${nextPrestige.resets} resets)`;
+                const progress = (gameState.user.totalResets / nextPrestige.resets) * 100;
+                document.getElementById('prestigeProgressBar').style.width = Math.min(progress, 100) + '%';
+            } else {
+                document.getElementById('nextPrestigeInfo').textContent = 'MÁXIMO ALCANÇADO';
+                document.getElementById('prestigeProgressBar').style.width = '100%';
+            }
+            
+            // Records
+            document.getElementById('recordLifetimeTasks').textContent = gameState.user.totalLifetimeTasks;
+            document.getElementById('recordMaxCombo').textContent = gameState.user.maxComboEver;
+            
+            const highestRank = ranks.find(r => r.name === gameState.user.highestRankEver);
+            document.getElementById('recordHighestRank').textContent = highestRank ? highestRank.display.split(' ')[0] : '🔰';
+            document.getElementById('recordLifetimeXP').textContent = gameState.user.totalLifetimeXP;
+            
+            // Reset history
+            const historyList = document.getElementById('resetHistoryList');
+            if (gameState.resetHistory && gameState.resetHistory.length > 0) {
+                historyList.innerHTML = gameState.resetHistory.map((reset, index) => {
+                    const date = new Date(reset.date);
+                    const rankDisplay = ranks.find(r => r.name === reset.rank);
+                    return `
+                        <div class="bg-gray-600 p-3 rounded-lg">
+                            <div class="flex justify-between items-center mb-2">
+                                <span class="font-bold text-purple-400">Reset #${gameState.resetHistory.length - index}</span>
+                                <span class="text-xs text-gray-300">${date.toLocaleDateString('pt-BR')}</span>
+                            </div>
+                            <div class="grid grid-cols-2 gap-2 text-xs">
+                                <div>XP: ${reset.xp}</div>
+                                <div>Missões: ${reset.tasksCompleted}</div>
+                                <div>Combo: ${reset.combo}</div>
+                                <div>Patente: ${rankDisplay ? rankDisplay.display.split(' ')[0] : '🔰'}</div>
+                            </div>
+                        </div>
+                    `;
+                }).join('');
+            } else {
+                historyList.innerHTML = '<div class="text-center text-gray-400 py-8">Nenhum reset realizado ainda</div>';
+            }
+            
+            document.getElementById('historyModal').classList.remove('hidden');
+        }
+
+        function closeHistory() {
+            document.getElementById('historyModal').classList.add('hidden');
+        }
+
+        // Search profile function
         function searchProfile() {
             const searchId = document.getElementById('searchId').value.trim();
-            if (searchId) {
-                // Simulate profile search (in real app, this would query a database)
-                const profiles = [
-                    { name: 'OPERADOR-001', id: '001', rank: '🎖️ SOLDADO', age: 25, weight: 75, profession: 'Desenvolvedor', xp: 15 },
-                    { name: 'OPERADOR-002', id: '002', rank: '⭐ CABO', age: 30, weight: 68, profession: 'Designer', xp: 25 },
-                    { name: 'OPERADOR-003', id: '003', rank: '👑 CAPITÃO', age: 35, weight: 80, profession: 'Gerente', xp: 85 }
-                ];
-                
-                const profile = profiles.find(p => p.id === searchId.padStart(3, '0')) || profiles[0];
-                
-                document.getElementById('profileName').textContent = profile.name;
-                document.getElementById('profileId').textContent = profile.id;
-                document.getElementById('profileRank').textContent = profile.rank;
-                document.getElementById('profileAge').textContent = profile.age + ' anos';
-                document.getElementById('profileWeight').textContent = profile.weight + ' kg';
-                document.getElementById('profileJob').textContent = profile.profession;
-                document.getElementById('profileXP').textContent = profile.xp;
-                
-                const maxXP = 160;
-                const xpPercentage = Math.min(profile.xp / maxXP * 100, 100);
-                document.getElementById('profileXPBar').style.width = xpPercentage + '%';
-                
-                document.getElementById('profileModal').classList.remove('hidden');
-                document.getElementById('searchId').value = '';
-            }
-        }
-
-        function updateProfileDisplay() {
-            document.getElementById('profileName').textContent = gameState.user.name;
-            document.getElementById('profileId').textContent = gameState.user.id;
-            document.getElementById('profileRank').textContent = ranks.find(r => r.name === gameState.user.rank).display;
-            document.getElementById('profileAge').textContent = gameState.user.age + ' anos';
-            document.getElementById('profileWeight').textContent = gameState.user.weight + ' kg';
-            document.getElementById('profileJob').textContent = gameState.user.profession;
-            document.getElementById('profileXP').textContent = gameState.user.xp;
             
-            const maxXP = 160;
-            const xpPercentage = Math.min(gameState.user.xp / maxXP * 100, 100);
-            document.getElementById('profileXPBar').style.width = xpPercentage + '%';
-        }
-
-        // Update Display
-        function updateDisplay() {
-            // User info (Desktop)
-            document.getElementById('userDisplay').textContent = `${gameState.user.name}-${gameState.user.id}`;
-            
-            // User info (Mobile)
-            const userDisplayMobile = document.getElementById('userDisplayMobile');
-            if (userDisplayMobile) {
-                userDisplayMobile.textContent = `${gameState.user.name}-${gameState.user.id}`;
+            if (!searchId) {
+                alert('Digite um ID para buscar!');
+                return;
             }
             
-            // Prestige display (Desktop)
-            const currentPrestige = prestigeRanks.find(r => r.name === gameState.user.prestigeRank);
-            document.getElementById('prestigeDisplay').textContent = currentPrestige.display;
-            document.getElementById('prestigeDisplay').style.color = currentPrestige.color;
-            
-            // Prestige display (Mobile)
-            const prestigeDisplayMobile = document.getElementById('prestigeDisplayMobile');
-            if (prestigeDisplayMobile) {
-                prestigeDisplayMobile.textContent = currentPrestige.display;
-                prestigeDisplayMobile.style.color = currentPrestige.color;
-            }
-            
-            // Current rank (Desktop)
-            const currentRankObj = ranks.find(r => r.name === gameState.user.rank);
-            document.getElementById('currentRank').textContent = currentRankObj.display;
-            
-            // Current rank (Mobile)
-            const currentRankMobile = document.getElementById('currentRankMobile');
-            if (currentRankMobile) {
-                currentRankMobile.textContent = currentRankObj.display;
-            }
-            
-            // XP Progress
-            document.getElementById('currentXP').textContent = gameState.user.xp;
-            document.getElementById('tasksCompleted').textContent = gameState.user.tasksCompleted;
-            document.getElementById('comboCount').textContent = gameState.user.combo;
-            
-            // Prestige stats
-            document.getElementById('totalResets').textContent = gameState.user.totalResets;
-            document.getElementById('lifetimeTasks').textContent = gameState.user.totalLifetimeTasks;
-            
-            // Next rank XP
-            const currentRankIndex = ranks.findIndex(r => r.name === gameState.user.rank);
-            const nextRank = ranks[currentRankIndex + 1];
-            if (nextRank) {
-                document.getElementById('nextXP').textContent = nextRank.xp;
-                const progress = ((gameState.user.xp - currentRankObj.xp) / (nextRank.xp - currentRankObj.xp)) * 100;
-                document.getElementById('xpBar').style.width = Math.min(progress, 100) + '%';
-            } else {
-                document.getElementById('nextXP').textContent = 'MAX';
-                document.getElementById('xpBar').style.width = '100%';
-            }
-            
-            // Highlight current rank
-            ranks.forEach(rank => {
-                const element = document.getElementById(`rank-${rank.name}`);
-                if (element) {
-                    if (rank.name === gameState.user.rank) {
-                        element.classList.add('bg-yellow-600', 'text-black');
-                    } else {
-                        element.classList.remove('bg-yellow-600', 'text-black');
+            // Search through all stored users
+            let foundUser = null;
+            for (let i = 0; i < localStorage.length; i++) {
+                const key = localStorage.key(i);
+                if (key && key.startsWith('taskforce-user-')) {
+                    const userData = JSON.parse(localStorage.getItem(key));
+                    if (userData.user.id === searchId) {
+                        foundUser = userData.user;
+                        break;
                     }
                 }
-            });
-            
-            updateTaskList();
-        }
-
-        // Data Migration System
-        function migrateUserData(userData) {
-            // Versão atual do sistema
-            const CURRENT_VERSION = "2.0";
-            
-            // Se não tem versão, é dados antigos
-            if (!userData.version) {
-                console.log("Migrando dados da versão antiga...");
-                
-                // Adiciona campos de prestígio se não existirem
-                if (!userData.user.totalResets) userData.user.totalResets = 0;
-                if (!userData.user.prestigeRank) userData.user.prestigeRank = 'bronze1';
-                if (!userData.user.totalLifetimeXP) userData.user.totalLifetimeXP = 0;
-                if (!userData.user.totalLifetimeTasks) userData.user.totalLifetimeTasks = 0;
-                if (!userData.user.maxComboEver) userData.user.maxComboEver = userData.user.combo || 0;
-                if (!userData.user.highestRankEver) userData.user.highestRankEver = userData.user.rank || 'recruta';
-                if (!userData.user.lastDailyReset) userData.user.lastDailyReset = null;
-                
-                // Adiciona histórico de resets se não existir
-                if (!userData.resetHistory) userData.resetHistory = [];
-                
-                // Adiciona categorias personalizadas se não existir
-                if (!userData.customCategories) userData.customCategories = {};
-                
-                // Migra tarefas antigas para novo formato com data
-                if (userData.tasks) {
-                    const today = getBrasiliaDateString();
-                    userData.tasks.forEach(task => {
-                        if (!task.date) {
-                            task.date = today; // Define tarefas antigas como sendo de hoje
-                        }
-                    });
-                }
-                
-                // Marca como migrado
-                userData.version = CURRENT_VERSION;
-                
-                console.log("Migração concluída!");
             }
             
-            return userData;
+            if (foundUser) {
+                const currentRank = ranks.find(r => r.xp <= foundUser.xp && 
+                    (ranks.indexOf(r) === ranks.length - 1 || ranks[ranks.indexOf(r) + 1].xp > foundUser.xp));
+                
+                const currentPrestige = prestigeRanks.find(p => p.name === foundUser.prestigeRank);
+                
+                alert(`👤 OPERADOR ENCONTRADO!\n\n` +
+                      `Nome: ${foundUser.name}\n` +
+                      `ID: ${foundUser.id}\n` +
+                      `Patente: ${currentRank ? currentRank.display : '🔰 RECRUTA'}\n` +
+                      `Prestígio: ${currentPrestige ? currentPrestige.display : '🥉 BRONZE I'}\n` +
+                      `XP: ${foundUser.xp}\n` +
+                      `Missões Completas: ${foundUser.tasksCompleted}\n` +
+                      `Constância: ${foundUser.constancia} dias\n` +
+                      `Total de Resets: ${foundUser.totalResets}`);
+            } else {
+                alert('❌ Operador não encontrado!\n\nVerifique se o ID está correto.');
+            }
+            
+            document.getElementById('searchId').value = '';
         }
 
-        // Save/Load Game State
+        // Save and Load functions
         function saveGameState() {
             if (gameState.currentUser) {
-                // Adiciona versão aos dados antes de salvar
-                gameState.version = "2.0";
                 const userKey = `taskforce-user-${gameState.currentUser}`;
                 localStorage.setItem(userKey, JSON.stringify(gameState));
             }
         }
 
-        function loadGameState() {
-            // This function is now handled in the login process
-            // Each user has their own save file
-        }
-
-        // Initialize on page load
-        window.addEventListener('load', () => {
-            initializeApp();
+        // Initialize app on load
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('🎖️ TaskForce v2.0 - Sistema Inicializado');
+            console.log('🇧🇷 Fuso horário: America/Sao_Paulo');
+            
+            // Set initial date
+            const today = getBrasiliaDateString();
+            document.getElementById('taskDate').value = today;
+            document.getElementById('dateSelector').value = today;
+            gameState.selectedDate = today;
+            
+            updateSelectedDateInfo();
         });
     </script>
-<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'98785b6fc5fef1dd',t:'MTc1OTI4MzkyOS4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'987eb05b338fadd3',t:'MTc1OTM1MDMyMi4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
 </html>
