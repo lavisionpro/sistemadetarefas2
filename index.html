@@ -81,6 +81,56 @@
             background: #2563eb !important;
             transform: scale(1.1);
         }
+
+        .edit-emoji-btn.selected {
+            background: #2563eb !important;
+            transform: scale(1.1);
+        }
+
+        .constancia-effect {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+            color: white;
+            padding: 2rem;
+            border-radius: 1rem;
+            box-shadow: 0 20px 40px rgba(245, 158, 11, 0.4);
+            z-index: 1000;
+            text-align: center;
+            animation: constancia-appear 3s ease-in-out;
+            border: 3px solid #fbbf24;
+        }
+
+        @keyframes constancia-appear {
+            0% { 
+                opacity: 0; 
+                transform: translate(-50%, -50%) scale(0.5); 
+            }
+            20% { 
+                opacity: 1; 
+                transform: translate(-50%, -50%) scale(1.1); 
+            }
+            80% { 
+                opacity: 1; 
+                transform: translate(-50%, -50%) scale(1); 
+            }
+            100% { 
+                opacity: 0; 
+                transform: translate(-50%, -50%) scale(0.9); 
+            }
+        }
+
+        .fire-animation {
+            font-size: 3rem;
+            animation: fire-dance 1s ease-in-out infinite alternate;
+        }
+
+        @keyframes fire-dance {
+            0% { transform: scale(1) rotate(-5deg); }
+            100% { transform: scale(1.2) rotate(5deg); }
+        }
     </style>
 </head>
 <body class="bg-gray-900 text-white min-h-screen">
@@ -236,7 +286,7 @@
                         <button onclick="showHistory()" class="bg-purple-600 hover:bg-purple-700 px-4 py-2 rounded-md transition duration-300">
                             📜 Histórico
                         </button>
-                        <button onclick="showResetMenu()" class="bg-orange-600 hover:bg-orange-700 px-4 py-2 rounded-md transition duration-300">
+                        <button onclick="showResetMenu()" class="bg-orange-600 hover:bg-orange-700 px-4 py-2 rounded-md transition duration-300" id="resetButton">
                             🔄 Reset
                         </button>
                         <button onclick="logout()" class="bg-red-600 hover:bg-red-700 px-4 py-2 rounded-md transition duration-300">
@@ -270,7 +320,7 @@
                         <button onclick="showHistory()" class="bg-purple-600 hover:bg-purple-700 px-3 py-2 rounded-md transition duration-300 text-sm">
                             📜 Histórico
                         </button>
-                        <button onclick="showResetMenu()" class="bg-orange-600 hover:bg-orange-700 px-3 py-2 rounded-md transition duration-300 text-sm">
+                        <button onclick="showResetMenu()" class="bg-orange-600 hover:bg-orange-700 px-3 py-2 rounded-md transition duration-300 text-sm" id="resetButtonMobile">
                             🔄 Reset
                         </button>
                         <button onclick="logout()" class="bg-red-600 hover:bg-red-700 px-3 py-2 rounded-md transition duration-300 text-sm">
@@ -564,69 +614,120 @@
     <div id="resetModal" class="hidden fixed inset-0 bg-black bg-opacity-75 modal-backdrop flex items-center justify-center z-50">
         <div class="bg-gray-800 rounded-lg p-8 max-w-md w-full mx-4 border border-gray-700">
             <div class="text-center mb-6">
-                <h3 class="military-font text-2xl font-bold text-orange-400 mb-2">🔄 CENTRO DE RESET</h3>
-                <p class="text-gray-300 text-sm">Escolha o tipo de reset que deseja realizar</p>
+                <h3 class="military-font text-2xl font-bold text-orange-400 mb-2">🔄 SISTEMA DE RESET</h3>
+                <p class="text-gray-300 text-sm" id="resetDescription">Você precisa alcançar a patente de General para fazer um reset</p>
             </div>
             
             <div class="space-y-4">
-                <!-- Reset Tasks Only -->
-                <button onclick="showResetConfirm('tasks')" class="w-full bg-yellow-600 hover:bg-yellow-700 text-black font-bold py-3 px-4 rounded-md transition duration-300 military-font">
-                    📋 RESET APENAS TAREFAS
+                <button onclick="showResetConfirmation()" class="w-full reset-danger text-white font-bold py-3 px-4 rounded-md transition duration-300 military-font" id="resetExecuteButton" disabled>
+                    🏆 FAZER RESET DE PRESTÍGIO
                 </button>
-                <p class="text-xs text-gray-400 text-center -mt-2">Remove todas as tarefas, mantém XP e patente</p>
-                
-                <!-- Reset Progress -->
-                <button onclick="showResetConfirm('progress')" class="w-full bg-orange-600 hover:bg-orange-700 text-white font-bold py-3 px-4 rounded-md transition duration-300 military-font">
-                    📊 RESET PROGRESSO
-                </button>
-                <p class="text-xs text-gray-400 text-center -mt-2">Zera XP, patente e combo, mantém tarefas</p>
-                
-                <!-- Reset Everything -->
-                <button onclick="showResetConfirm('everything')" class="w-full reset-danger text-white font-bold py-3 px-4 rounded-md transition duration-300 military-font">
-                    💥 RESET COMPLETO
-                </button>
-                <p class="text-xs text-gray-400 text-center -mt-2">⚠️ ATENÇÃO: Remove TUDO exceto dados pessoais</p>
-                
-                <!-- Reset Account -->
-                <button onclick="showResetConfirm('account')" class="w-full bg-red-800 hover:bg-red-900 text-white font-bold py-3 px-4 rounded-md transition duration-300 military-font">
-                    🗑️ DELETAR CONTA
-                </button>
-                <p class="text-xs text-red-400 text-center -mt-2">⚠️ PERIGO: Remove conta permanentemente</p>
+                <p class="text-xs text-gray-400 text-center -mt-2" id="resetInfo">
+                    Ao fazer o reset, você ganha 1 ponto de prestígio e volta ao início, mas mantém seu histórico
+                </p>
             </div>
             
             <button onclick="closeResetMenu()" class="w-full mt-6 bg-gray-600 hover:bg-gray-700 text-white py-2 px-4 rounded-md transition duration-300">
-                Cancelar
+                Fechar
             </button>
         </div>
     </div>
 
     <!-- Reset Confirmation Modal -->
     <div id="resetConfirmModal" class="hidden fixed inset-0 bg-black bg-opacity-75 modal-backdrop flex items-center justify-center z-50">
-        <div class="bg-gray-800 rounded-lg p-8 max-w-md w-full mx-4 border border-red-500 shake">
+        <div class="bg-gray-800 rounded-lg p-8 max-w-md w-full mx-4 border border-red-500 border-2">
             <div class="text-center mb-6">
-                <h3 class="military-font text-2xl font-bold text-red-400 mb-2" id="confirmTitle">⚠️ CONFIRMAÇÃO</h3>
-                <p class="text-gray-300 text-sm" id="confirmMessage">Tem certeza que deseja continuar?</p>
+                <div class="text-6xl mb-4">⚠️</div>
+                <h3 class="military-font text-2xl font-bold text-red-400 mb-4">CONFIRMAÇÃO DE RESET</h3>
+                <div class="bg-red-900 bg-opacity-50 p-4 rounded-lg mb-4">
+                    <p class="text-white font-bold mb-2">🏆 RESET DE PRESTÍGIO</p>
+                    <p class="text-sm text-gray-300 mb-2">Você tem certeza que deseja fazer o reset?</p>
+                    <div class="text-xs text-gray-400 space-y-1">
+                        <p>✅ Você ganhará 1 ponto de prestígio</p>
+                        <p>✅ Seu histórico será mantido</p>
+                        <p>❌ Voltará ao início (XP = 0, Recruta)</p>
+                        <p>❌ Todas as tarefas atuais serão arquivadas</p>
+                    </div>
+                </div>
+                <p class="text-yellow-400 font-bold text-sm">Esta ação não pode ser desfeita!</p>
             </div>
             
-            <div class="bg-red-900 border border-red-500 rounded-lg p-4 mb-6">
-                <p class="text-red-200 text-sm font-bold text-center" id="confirmWarning">
-                    Esta ação não pode ser desfeita!
-                </p>
+            <div class="flex space-x-3">
+                <button onclick="closeResetConfirmation()" class="flex-1 bg-gray-600 hover:bg-gray-700 text-white py-3 px-4 rounded-md transition duration-300">
+                    ❌ Cancelar
+                </button>
+                <button onclick="executeReset(); closeResetConfirmation(); closeResetMenu();" class="flex-1 bg-red-600 hover:bg-red-700 text-white font-bold py-3 px-4 rounded-md transition duration-300 military-font">
+                    🏆 CONFIRMAR RESET
+                </button>
+            </div>
+        </div>
+    </div>
+
+
+
+    <!-- Edit Task Modal -->
+    <div id="editTaskModal" class="hidden fixed inset-0 bg-black bg-opacity-75 modal-backdrop flex items-center justify-center z-50">
+        <div class="bg-gray-800 rounded-lg p-8 max-w-md w-full mx-4 border border-gray-700">
+            <div class="text-center mb-6">
+                <h3 class="military-font text-2xl font-bold text-yellow-400 mb-2">✏️ EDITAR MISSÃO</h3>
+                <p class="text-gray-300 text-sm">Modifique os dados da missão</p>
             </div>
             
-            <div class="space-y-3">
+            <div class="space-y-4">
                 <div>
-                    <label class="block text-sm font-medium text-gray-300 mb-2">Digite "CONFIRMAR" para prosseguir:</label>
-                    <input type="text" id="confirmInput" class="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-md text-white focus:outline-none focus:ring-2 focus:ring-red-500" placeholder="CONFIRMAR">
+                    <label class="block text-sm font-medium text-gray-300 mb-2">Título da Missão</label>
+                    <input type="text" id="editTaskTitle" class="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-md text-white focus:outline-none focus:ring-2 focus:ring-blue-500">
                 </div>
                 
-                <button onclick="executeReset()" class="w-full bg-red-600 hover:bg-red-700 text-white font-bold py-3 px-4 rounded-md transition duration-300 military-font">
-                    🔥 EXECUTAR RESET
-                </button>
+                <div>
+                    <label class="block text-sm font-medium text-gray-300 mb-2">Categoria</label>
+                    <select id="editTaskCategory" onchange="toggleEditCustomCategory()" class="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-md text-white focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        <option value="trabalho">💼 Trabalho</option>
+                        <option value="pessoal">🏠 Pessoal</option>
+                        <option value="estudos">📚 Estudos</option>
+                        <option value="saude">💪 Saúde</option>
+                        <option value="custom">✨ Nova Categoria</option>
+                    </select>
+                </div>
                 
-                <button onclick="closeResetConfirm()" class="w-full bg-gray-600 hover:bg-gray-700 text-white py-2 px-4 rounded-md transition duration-300">
-                    Cancelar
-                </button>
+                <div id="editCustomCategoryDiv" class="hidden">
+                    <input type="text" id="editCustomCategory" placeholder="Digite o nome da nova categoria" class="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-md text-white focus:outline-none focus:ring-2 focus:ring-blue-500 mb-2">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-300 mb-2">Escolha um emoji:</label>
+                        <div class="flex flex-wrap gap-2">
+                            <button type="button" onclick="selectEditEmoji('🎯')" class="edit-emoji-btn bg-gray-600 hover:bg-gray-500 px-2 py-1 rounded text-lg transition duration-300">🎯</button>
+                            <button type="button" onclick="selectEditEmoji('🚀')" class="edit-emoji-btn bg-gray-600 hover:bg-gray-500 px-2 py-1 rounded text-lg transition duration-300">🚀</button>
+                            <button type="button" onclick="selectEditEmoji('💡')" class="edit-emoji-btn bg-gray-600 hover:bg-gray-500 px-2 py-1 rounded text-lg transition duration-300">💡</button>
+                            <button type="button" onclick="selectEditEmoji('🎨')" class="edit-emoji-btn bg-gray-600 hover:bg-gray-500 px-2 py-1 rounded text-lg transition duration-300">🎨</button>
+                            <button type="button" onclick="selectEditEmoji('🏃')" class="edit-emoji-btn bg-gray-600 hover:bg-gray-500 px-2 py-1 rounded text-lg transition duration-300">🏃</button>
+                            <button type="button" onclick="selectEditEmoji('🍎')" class="edit-emoji-btn bg-gray-600 hover:bg-gray-500 px-2 py-1 rounded text-lg transition duration-300">🍎</button>
+                            <button type="button" onclick="selectEditEmoji('🎵')" class="edit-emoji-btn bg-gray-600 hover:bg-gray-500 px-2 py-1 rounded text-lg transition duration-300">🎵</button>
+                            <button type="button" onclick="selectEditEmoji('🌟')" class="edit-emoji-btn bg-gray-600 hover:bg-gray-500 px-2 py-1 rounded text-lg transition duration-300">🌟</button>
+                            <button type="button" onclick="selectEditEmoji('💰')" class="edit-emoji-btn bg-gray-600 hover:bg-gray-500 px-2 py-1 rounded text-lg transition duration-300">💰</button>
+                            <button type="button" onclick="selectEditEmoji('🔧')" class="edit-emoji-btn bg-gray-600 hover:bg-gray-500 px-2 py-1 rounded text-lg transition duration-300">🔧</button>
+                            <button type="button" onclick="selectEditEmoji('📱')" class="edit-emoji-btn bg-gray-600 hover:bg-gray-500 px-2 py-1 rounded text-lg transition duration-300">📱</button>
+                            <button type="button" onclick="selectEditEmoji('🎮')" class="edit-emoji-btn bg-gray-600 hover:bg-gray-500 px-2 py-1 rounded text-lg transition duration-300">🎮</button>
+                            <button type="button" onclick="selectEditEmoji('🏆')" class="edit-emoji-btn bg-gray-600 hover:bg-gray-500 px-2 py-1 rounded text-lg transition duration-300">🏆</button>
+                            <button type="button" onclick="selectEditEmoji('⚡')" class="edit-emoji-btn bg-gray-600 hover:bg-gray-500 px-2 py-1 rounded text-lg transition duration-300">⚡</button>
+                            <button type="button" onclick="selectEditEmoji('🔥')" class="edit-emoji-btn bg-gray-600 hover:bg-gray-500 px-2 py-1 rounded text-lg transition duration-300">🔥</button>
+                            <button type="button" onclick="selectEditEmoji('💎')" class="edit-emoji-btn bg-gray-600 hover:bg-gray-500 px-2 py-1 rounded text-lg transition duration-300">💎</button>
+                            <button type="button" onclick="selectEditEmoji('🌈')" class="edit-emoji-btn bg-gray-600 hover:bg-gray-500 px-2 py-1 rounded text-lg transition duration-300">🌈</button>
+                            <button type="button" onclick="selectEditEmoji('🎪')" class="edit-emoji-btn bg-gray-600 hover:bg-gray-500 px-2 py-1 rounded text-lg transition duration-300">🎪</button>
+                            <button type="button" onclick="selectEditEmoji('🌍')" class="edit-emoji-btn bg-gray-600 hover:bg-gray-500 px-2 py-1 rounded text-lg transition duration-300">🌍</button>
+                            <button type="button" onclick="selectEditEmoji('🎭')" class="edit-emoji-btn bg-gray-600 hover:bg-gray-500 px-2 py-1 rounded text-lg transition duration-300">🎭</button>
+                        </div>
+                        <input type="hidden" id="editSelectedEmoji" value="🎯">
+                    </div>
+                </div>
+                
+                <div class="flex space-x-3">
+                    <button onclick="saveEditTask()" class="flex-1 bg-green-600 hover:bg-green-700 text-white font-bold py-3 px-4 rounded-md transition duration-300 military-font">
+                        ✅ SALVAR ALTERAÇÕES
+                    </button>
+                    <button onclick="closeEditTask()" class="flex-1 bg-gray-600 hover:bg-gray-700 text-white py-3 px-4 rounded-md transition duration-300">
+                        Cancelar
+                    </button>
+                </div>
             </div>
         </div>
     </div>
@@ -635,44 +736,18 @@
     <div id="historyModal" class="hidden fixed inset-0 bg-black bg-opacity-75 modal-backdrop flex items-center justify-center z-50">
         <div class="bg-gray-800 rounded-lg p-8 max-w-4xl w-full mx-4 border border-gray-700 max-h-[90vh] overflow-y-auto">
             <div class="text-center mb-6">
-                <h3 class="military-font text-3xl font-bold text-purple-400 mb-2">📜 HISTÓRICO DE PRESTÍGIO</h3>
-                <p class="text-gray-300">Sua jornada completa através dos resets</p>
+                <h3 class="military-font text-3xl font-bold text-purple-400 mb-2">📜 HISTÓRICO DE RESETS</h3>
+                <p class="text-gray-300">Veja todas as tarefas de cada reset realizado</p>
             </div>
             
-            <!-- Prestige Progress -->
+            <!-- Stats Summary -->
             <div class="bg-gray-700 rounded-lg p-6 mb-6">
-                <h4 class="military-font text-xl font-bold text-yellow-400 mb-4">🏆 PROGRESSO ATUAL</h4>
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-                    <div class="text-center">
-                        <div class="text-3xl font-bold mb-2" id="historyPrestigeRank">🥉 BRONZE I</div>
-                        <div class="text-sm text-gray-300">Patente de Prestígio</div>
-                    </div>
-                    <div class="text-center">
-                        <div class="text-3xl font-bold text-purple-400 mb-2" id="historyTotalResets">0</div>
-                        <div class="text-sm text-gray-300">Total de Resets</div>
-                    </div>
-                    <div class="text-center">
-                        <div class="text-3xl font-bold text-blue-400 mb-2" id="historyLifetimeXP">0</div>
-                        <div class="text-sm text-gray-300">XP Total Acumulado</div>
-                    </div>
-                </div>
-                
-                <!-- Next Prestige Progress -->
-                <div class="mt-4">
-                    <div class="flex justify-between text-sm mb-2">
-                        <span>Próxima Patente:</span>
-                        <span id="nextPrestigeInfo">🥉 BRONZE II (10 resets)</span>
-                    </div>
-                    <div class="w-full bg-gray-600 rounded-full h-3">
-                        <div class="bg-purple-500 h-3 rounded-full transition-all duration-500" id="prestigeProgressBar" style="width: 0%"></div>
-                    </div>
-                </div>
-            </div>
-            
-            <!-- Records -->
-            <div class="bg-gray-700 rounded-lg p-6 mb-6">
-                <h4 class="military-font text-xl font-bold text-yellow-400 mb-4">📊 RECORDES PESSOAIS</h4>
+                <h4 class="military-font text-xl font-bold text-yellow-400 mb-4">📊 ESTATÍSTICAS GERAIS</h4>
                 <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+                    <div class="text-center bg-gray-600 rounded-lg p-3">
+                        <div class="text-2xl font-bold text-purple-400" id="historyTotalResets">0</div>
+                        <div class="text-xs text-gray-300">Total de Resets</div>
+                    </div>
                     <div class="text-center bg-gray-600 rounded-lg p-3">
                         <div class="text-2xl font-bold text-green-400" id="recordLifetimeTasks">0</div>
                         <div class="text-xs text-gray-300">Missões Totais</div>
@@ -685,19 +760,52 @@
                         <div class="text-2xl font-bold text-yellow-400" id="recordHighestRank">🔰</div>
                         <div class="text-xs text-gray-300">Maior Patente</div>
                     </div>
-                    <div class="text-center bg-gray-600 rounded-lg p-3">
-                        <div class="text-2xl font-bold text-blue-400" id="recordLifetimeXP">0</div>
-                        <div class="text-xs text-gray-300">XP Acumulado</div>
-                    </div>
                 </div>
             </div>
             
-            <!-- Reset History -->
-            <div class="bg-gray-700 rounded-lg p-6">
-                <h4 class="military-font text-xl font-bold text-yellow-400 mb-4">🔄 HISTÓRICO DE RESETS</h4>
-                <div id="resetHistoryList" class="space-y-3 max-h-60 overflow-y-auto">
-                    <div class="text-center text-gray-400 py-8">
-                        Nenhum reset realizado ainda
+            <!-- Reset Search -->
+            <div class="bg-gray-700 rounded-lg p-6 mb-6">
+                <h4 class="military-font text-xl font-bold text-yellow-400 mb-4">🔍 BUSCAR RESET</h4>
+                <div class="flex space-x-2 mb-4">
+                    <input type="number" id="resetSearchInput" placeholder="Número do reset (ex: 1, 2, 3...)" min="1" class="flex-1 px-3 py-2 bg-gray-600 border border-gray-500 rounded-md text-white focus:outline-none focus:ring-2 focus:ring-purple-500">
+                    <button onclick="searchReset()" class="bg-purple-600 hover:bg-purple-700 px-4 py-2 rounded-md transition duration-300">
+                        🔍 Buscar
+                    </button>
+                </div>
+                <div class="text-xs text-gray-400">
+                    Digite o número do reset para ver todas as tarefas daquele período
+                </div>
+            </div>
+            
+            <!-- Reset Details -->
+            <div id="resetDetails" class="bg-gray-700 rounded-lg p-6 hidden">
+                <h4 class="military-font text-xl font-bold text-yellow-400 mb-4" id="resetDetailsTitle">📋 RESET #1</h4>
+                
+                <!-- Reset Info -->
+                <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-4">
+                    <div class="text-center bg-gray-600 rounded-lg p-3">
+                        <div class="text-lg font-bold text-blue-400" id="resetDetailsXP">0</div>
+                        <div class="text-xs text-gray-300">XP Final</div>
+                    </div>
+                    <div class="text-center bg-gray-600 rounded-lg p-3">
+                        <div class="text-lg font-bold text-green-400" id="resetDetailsCompleted">0</div>
+                        <div class="text-xs text-gray-300">Completas</div>
+                    </div>
+                    <div class="text-center bg-gray-600 rounded-lg p-3">
+                        <div class="text-lg font-bold text-orange-400" id="resetDetailsCombo">0</div>
+                        <div class="text-xs text-gray-300">Combo Final</div>
+                    </div>
+                    <div class="text-center bg-gray-600 rounded-lg p-3">
+                        <div class="text-lg font-bold text-yellow-400" id="resetDetailsRank">🔰</div>
+                        <div class="text-xs text-gray-300">Patente Final</div>
+                    </div>
+                </div>
+                
+                <!-- Tasks List -->
+                <div class="bg-gray-600 rounded-lg p-4">
+                    <h5 class="font-bold text-white mb-3">📋 Tarefas deste Reset:</h5>
+                    <div id="resetTasksList" class="space-y-2 max-h-60 overflow-y-auto">
+                        <!-- Tasks will be loaded here -->
                     </div>
                 </div>
             </div>
@@ -817,22 +925,7 @@
             { name: 'general', display: '👨‍✈️ GENERAL', xp: 160 }
         ];
 
-        // Prestige Rank System
-        const prestigeRanks = [
-            { name: 'bronze1', display: '🥉 BRONZE I', resets: 0, color: '#CD7F32' },
-            { name: 'bronze2', display: '🥉 BRONZE II', resets: 10, color: '#CD7F32' },
-            { name: 'bronze3', display: '🥉 BRONZE III', resets: 25, color: '#CD7F32' },
-            { name: 'prata1', display: '🥈 PRATA I', resets: 45, color: '#C0C0C0' },
-            { name: 'prata2', display: '🥈 PRATA II', resets: 70, color: '#C0C0C0' },
-            { name: 'prata3', display: '🥈 PRATA III', resets: 100, color: '#C0C0C0' },
-            { name: 'ouro1', display: '🥇 OURO I', resets: 135, color: '#FFD700' },
-            { name: 'ouro2', display: '🥇 OURO II', resets: 175, color: '#FFD700' },
-            { name: 'ouro3', display: '🥇 OURO III', resets: 220, color: '#FFD700' },
-            { name: 'diamante1', display: '💎 DIAMANTE I', resets: 270, color: '#B9F2FF' },
-            { name: 'diamante2', display: '💎 DIAMANTE II', resets: 325, color: '#B9F2FF' },
-            { name: 'diamante3', display: '💎 DIAMANTE III', resets: 385, color: '#B9F2FF' },
-            { name: 'lendario', display: '🌟 LENDÁRIO', resets: 450, color: '#FFD700' }
-        ];
+
 
         // Category Icons
         const categoryIcons = {
@@ -845,13 +938,18 @@
         // Sistema de Data/Hora de Brasília
         function getBrasiliaDate() {
             const now = new Date();
-            const brasiliaTime = new Date(now.toLocaleString("en-US", {timeZone: "America/Sao_Paulo"}));
+            // Criar data em UTC e ajustar para Brasília (-3 horas)
+            const utc = now.getTime() + (now.getTimezoneOffset() * 60000);
+            const brasiliaTime = new Date(utc + (-3 * 3600000));
             return brasiliaTime;
         }
 
         function getBrasiliaDateString() {
             const brasiliaDate = getBrasiliaDate();
-            return brasiliaDate.toISOString().split('T')[0];
+            const year = brasiliaDate.getFullYear();
+            const month = String(brasiliaDate.getMonth() + 1).padStart(2, '0');
+            const day = String(brasiliaDate.getDate()).padStart(2, '0');
+            return `${year}-${month}-${day}`;
         }
 
         // Migração de dados
@@ -867,7 +965,6 @@
                 
                 // Adiciona novos campos se não existirem
                 if (!userData.user.totalResets) userData.user.totalResets = 0;
-                if (!userData.user.prestigeRank) userData.user.prestigeRank = 'bronze1';
                 if (!userData.user.totalLifetimeXP) userData.user.totalLifetimeXP = 0;
                 if (!userData.user.totalLifetimeTasks) userData.user.totalLifetimeTasks = 0;
                 if (!userData.user.maxComboEver) userData.user.maxComboEver = userData.user.constancia || 0;
@@ -1145,6 +1242,7 @@
 
         // Reset System
         function showResetMenu() {
+            updateResetButton();
             document.getElementById('resetModal').classList.remove('hidden');
         }
 
@@ -1152,204 +1250,119 @@
             document.getElementById('resetModal').classList.add('hidden');
         }
 
-        function showResetConfirm(type) {
-            gameState.resetType = type;
+        function updateResetButton() {
+            const isGeneral = gameState.user.rank === 'general';
+            const resetButton = document.getElementById('resetExecuteButton');
+            const resetDescription = document.getElementById('resetDescription');
+            const resetInfo = document.getElementById('resetInfo');
             
-            const confirmTitle = document.getElementById('confirmTitle');
-            const confirmMessage = document.getElementById('confirmMessage');
-            const confirmWarning = document.getElementById('confirmWarning');
-            
-            switch(type) {
-                case 'tasks':
-                    confirmTitle.textContent = '📋 RESET DE TAREFAS';
-                    confirmMessage.textContent = 'Todas as suas tarefas (completas e pendentes) serão removidas. Seu XP, patente e conquistas serão mantidos.';
-                    confirmWarning.textContent = 'Suas tarefas serão perdidas permanentemente!';
-                    break;
-                    
-                case 'progress':
-                    confirmTitle.textContent = '📊 RESET DE PROGRESSO';
-                    confirmMessage.textContent = 'Seu XP, patente, constância e conquistas serão zerados. Suas tarefas atuais serão mantidas.';
-                    confirmWarning.textContent = 'Todo seu progresso será perdido!';
-                    break;
-                    
-                case 'everything':
-                    confirmTitle.textContent = '💥 RESET COMPLETO';
-                    confirmMessage.textContent = 'TUDO será removido: tarefas, XP, patente, constância e conquistas. Apenas seus dados pessoais (nome, idade, etc.) serão mantidos.';
-                    confirmWarning.textContent = 'ATENÇÃO: Você voltará ao estado inicial!';
-                    break;
-                    
-                case 'account':
-                    confirmTitle.textContent = '🗑️ DELETAR CONTA';
-                    confirmMessage.textContent = 'Sua conta será completamente removida do sistema. Todos os dados serão perdidos permanentemente.';
-                    confirmWarning.textContent = 'PERIGO: Esta ação é IRREVERSÍVEL!';
-                    break;
+            if (isGeneral) {
+                resetButton.disabled = false;
+                resetButton.classList.remove('opacity-50', 'cursor-not-allowed');
+                resetDescription.textContent = 'Você alcançou a patente de General! Agora pode fazer um reset de prestígio.';
+                resetInfo.textContent = 'Ao fazer o reset, você ganha 1 ponto de prestígio, volta ao início, mas mantém seu histórico de tarefas.';
+            } else {
+                resetButton.disabled = true;
+                resetButton.classList.add('opacity-50', 'cursor-not-allowed');
+                resetDescription.textContent = 'Você precisa alcançar a patente de General para fazer um reset.';
+                resetInfo.textContent = 'Continue completando missões para subir de patente e desbloquear o sistema de reset.';
             }
-            
-            document.getElementById('resetModal').classList.add('hidden');
-            document.getElementById('resetConfirmModal').classList.remove('hidden');
-            document.getElementById('confirmInput').value = '';
         }
 
-        function closeResetConfirm() {
-            document.getElementById('resetConfirmModal').classList.add('hidden');
-            gameState.resetType = null;
-        }
-
-        function executeReset() {
-            const confirmInput = document.getElementById('confirmInput').value.trim().toUpperCase();
-            
-            if (confirmInput !== 'CONFIRMAR') {
-                alert('⚠️ Digite "CONFIRMAR" exatamente como mostrado!');
+        function showResetConfirmation() {
+            if (gameState.user.rank !== 'general') {
+                alert('⚠️ Você precisa ser General para fazer um reset!');
                 return;
             }
             
-            const type = gameState.resetType;
+            document.getElementById('resetConfirmModal').classList.remove('hidden');
+        }
+
+        function closeResetConfirmation() {
+            document.getElementById('resetConfirmModal').classList.add('hidden');
+        }
+
+        function executeReset() {
+            console.log('Tentando executar reset...');
+            console.log('Rank atual:', gameState.user.rank);
+            console.log('XP atual:', gameState.user.xp);
             
-            switch(type) {
-                case 'tasks':
-                    gameState.tasks = [];
-                    gameState.fixedTasks = [];
-                    showResetSuccess('📋 Tarefas removidas com sucesso!', 'Seu progresso e patente foram mantidos.');
-                    break;
-                    
-                case 'progress':
-                    gameState.user.xp = 0;
-                    gameState.user.tasksCompleted = 0;
-                    gameState.user.constancia = 0;
-                    gameState.user.constanciaGoal = 5;
-                    gameState.user.constanciaAchievements = 0;
-                    gameState.user.rank = 'recruta';
-                    gameState.user.lastTaskDate = null;
-                    
-                    document.querySelectorAll('[id^="achievement-"]').forEach(achievement => {
-                        achievement.classList.add('opacity-50');
-                        achievement.classList.remove('pulse-glow');
-                    });
-                    
-                    showResetSuccess('📊 Progresso resetado!', 'Você voltou ao posto de Recruta. Suas tarefas foram mantidas.');
-                    break;
-                    
-                case 'everything':
-                    const resetData = {
-                        date: new Date().toISOString(),
-                        xp: gameState.user.xp,
-                        tasksCompleted: gameState.user.tasksCompleted,
-                        combo: gameState.user.constancia,
-                        rank: gameState.user.rank,
-                        totalTasks: gameState.tasks.length,
-                        completedTasks: gameState.tasks.filter(t => t.completed).length
-                    };
-                    
-                    gameState.user.totalLifetimeXP += gameState.user.xp;
-                    gameState.user.totalLifetimeTasks += gameState.user.tasksCompleted;
-                    gameState.user.totalResets += 1;
-                    
-                    if (gameState.user.constancia > gameState.user.maxComboEver) {
-                        gameState.user.maxComboEver = gameState.user.constancia;
-                    }
-                    
-                    const currentRankIndex = ranks.findIndex(r => r.name === gameState.user.rank);
-                    const highestRankIndex = ranks.findIndex(r => r.name === gameState.user.highestRankEver);
-                    if (currentRankIndex > highestRankIndex) {
-                        gameState.user.highestRankEver = gameState.user.rank;
-                    }
-                    
-                    gameState.resetHistory.unshift(resetData);
-                    updatePrestigeRank();
-                    
-                    const personalData = {
-                        name: gameState.user.name,
-                        username: gameState.user.username,
-                        password: gameState.user.password,
-                        id: gameState.user.id,
-                        age: gameState.user.age,
-                        weight: gameState.user.weight,
-                        profession: gameState.user.profession,
-                        totalResets: gameState.user.totalResets,
-                        prestigeRank: gameState.user.prestigeRank,
-                        totalLifetimeXP: gameState.user.totalLifetimeXP,
-                        totalLifetimeTasks: gameState.user.totalLifetimeTasks,
-                        maxComboEver: gameState.user.maxComboEver,
-                        highestRankEver: gameState.user.highestRankEver,
-                        lastDailyReset: gameState.user.lastDailyReset
-                    };
-                    
-                    gameState.user = {
-                        ...personalData,
-                        xp: 0,
-                        tasksCompleted: 0,
-                        constancia: 0,
-                        constanciaGoal: 5,
-                        constanciaAchievements: 0,
-                        lastTaskDate: null,
-                        rank: 'recruta'
-                    };
-                    
-                    gameState.tasks = [];
-                    gameState.fixedTasks = [];
-                    gameState.currentFilter = 'today';
-                    
-                    document.querySelectorAll('[id^="achievement-"]').forEach(achievement => {
-                        achievement.classList.add('opacity-50');
-                        achievement.classList.remove('pulse-glow');
-                    });
-                    
-                    showPrestigeSuccess();
-                    break;
-                    
-                case 'account':
-                    const userKey = `taskforce-user-${gameState.currentUser}`;
-                    localStorage.removeItem(userKey);
-                    
-                    alert('🗑️ Conta deletada com sucesso!\n\nVocê será redirecionado para a tela de login.');
-                    logout();
-                    return;
+            if (gameState.user.rank !== 'general') {
+                alert('⚠️ Você precisa ser General para fazer um reset!');
+                return;
             }
+            
+            console.log('Executando reset...');
+            
+            // Salvar dados do reset atual
+            const resetData = {
+                resetNumber: gameState.user.totalResets + 1,
+                date: new Date().toISOString(),
+                xp: gameState.user.xp,
+                tasksCompleted: gameState.user.tasksCompleted,
+                combo: gameState.user.constancia,
+                rank: gameState.user.rank,
+                tasks: [...gameState.tasks] // Cópia de todas as tarefas
+            };
+            
+            // Atualizar estatísticas de prestígio
+            gameState.user.totalLifetimeXP += gameState.user.xp;
+            gameState.user.totalLifetimeTasks += gameState.user.tasksCompleted;
+            gameState.user.totalResets += 1;
+            
+            if (gameState.user.constancia > gameState.user.maxComboEver) {
+                gameState.user.maxComboEver = gameState.user.constancia;
+            }
+            
+            const currentRankIndex = ranks.findIndex(r => r.name === gameState.user.rank);
+            const highestRankIndex = ranks.findIndex(r => r.name === gameState.user.highestRankEver);
+            if (currentRankIndex > highestRankIndex) {
+                gameState.user.highestRankEver = gameState.user.rank;
+            }
+            
+            // Adicionar ao histórico
+            if (!gameState.resetHistory) gameState.resetHistory = [];
+            gameState.resetHistory.unshift(resetData);
+            
+            // Resetar progresso atual
+            gameState.user.xp = 0;
+            gameState.user.tasksCompleted = 0;
+            gameState.user.constancia = 0;
+            gameState.user.constanciaGoal = 5;
+            gameState.user.constanciaAchievements = 0;
+            gameState.user.lastTaskDate = null;
+            gameState.user.rank = 'recruta';
+            
+            // Limpar tarefas atuais
+            gameState.tasks = [];
+            gameState.fixedTasks = [];
+            
+            // Resetar conquistas
+            document.querySelectorAll('[id^="achievement-"]').forEach(achievement => {
+                achievement.classList.add('opacity-50');
+                achievement.classList.remove('pulse-glow');
+            });
+            
+            console.log('Reset executado com sucesso!');
+            console.log('Novo total de resets:', gameState.user.totalResets);
             
             saveGameState();
             updateDisplay();
-            closeResetConfirm();
+            updateTaskList();
+            closeResetMenu();
+            
+            showPrestigeSuccess(gameState.user.totalResets);
         }
 
-        function updatePrestigeRank() {
-            for (let i = prestigeRanks.length - 1; i >= 0; i--) {
-                if (gameState.user.totalResets >= prestigeRanks[i].resets) {
-                    if (prestigeRanks[i].name !== gameState.user.prestigeRank) {
-                        gameState.user.prestigeRank = prestigeRanks[i].name;
-                        showPrestigeRankUp(prestigeRanks[i].display);
-                    }
-                    break;
-                }
-            }
-        }
-
-        function showPrestigeSuccess() {
-            const currentPrestige = prestigeRanks.find(r => r.name === gameState.user.prestigeRank);
+        function showPrestigeSuccess(resetNumber) {
             const notification = document.createElement('div');
             notification.className = 'fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-purple-600 text-white p-8 rounded-lg shadow-2xl z-50 military-font text-center max-w-md';
             notification.innerHTML = `
                 <div class="text-4xl mb-4">🏆</div>
-                <div class="text-2xl mb-2">PRESTÍGIO CONCLUÍDO!</div>
-                <div class="text-lg mb-2">${currentPrestige.display}</div>
-                <div class="text-sm">Reset #${gameState.user.totalResets} registrado no histórico!</div>
-                <div class="text-xs mt-2 text-purple-200">Sua jornada continua, soldado!</div>
-            `;
-            document.body.appendChild(notification);
-            
-            setTimeout(() => {
-                document.body.removeChild(notification);
-            }, 4000);
-        }
-
-        function showPrestigeRankUp(rankDisplay) {
-            const notification = document.createElement('div');
-            notification.className = 'fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-gradient-to-r from-purple-600 to-pink-600 text-white px-8 py-6 rounded-lg shadow-2xl z-50 military-font text-xl font-bold';
-            notification.innerHTML = `
-                <div class="text-center">
-                    <div class="text-4xl mb-2">🌟</div>
-                    <div class="text-2xl mb-2">PROMOÇÃO DE PRESTÍGIO!</div>
-                    <div class="text-lg">${rankDisplay}</div>
-                </div>
+                <div class="text-2xl mb-2">RESET DE PRESTÍGIO CONCLUÍDO!</div>
+                <div class="text-lg mb-2">Reset #${resetNumber}</div>
+                <div class="text-sm">Todas as suas tarefas foram salvas no histórico!</div>
+                <div class="text-xs mt-2 text-purple-200">Sua jornada recomeça, soldado!</div>
             `;
             document.body.appendChild(notification);
             
@@ -1443,7 +1456,6 @@
                 lastTaskDate: null,
                 rank: 'recruta',
                 totalResets: 0,
-                prestigeRank: 'bronze1',
                 totalLifetimeXP: 0,
                 totalLifetimeTasks: 0,
                 maxComboEver: 0,
@@ -1527,9 +1539,9 @@
             document.getElementById('regConfirmPassword').value = '';
             
             closeResetMenu();
-            closeResetConfirm();
             closeProfile();
             closeHistory();
+            closeEditTask();
             
             showLogin();
         }
@@ -1791,7 +1803,29 @@
                 }
                 
                 gameState.user.lastTaskDate = today;
+                
+                // Mostrar efeito de constância na primeira tarefa do dia
+                showConstanciaEffect();
             }
+        }
+
+        function showConstanciaEffect() {
+            const effect = document.createElement('div');
+            effect.className = 'constancia-effect military-font';
+            effect.innerHTML = `
+                <div class="fire-animation">🔥</div>
+                <div class="text-2xl font-bold mb-2">CONSTÂNCIA MANTIDA!</div>
+                <div class="text-lg">Você está constante há <span class="text-yellow-300 font-bold">${gameState.user.constancia}</span> dias</div>
+                <div class="text-sm mt-2 text-orange-200">Muito bem, continue firme!</div>
+            `;
+            
+            document.body.appendChild(effect);
+            
+            setTimeout(() => {
+                if (document.body.contains(effect)) {
+                    document.body.removeChild(effect);
+                }
+            }, 3000);
         }
 
         function showConstanciaAchievement() {
@@ -1956,6 +1990,9 @@
                                 ` : `
                                     <span class="text-green-400 text-sm font-bold">✅ Completa</span>
                                 `}
+                                <button onclick="editTask(${task.id})" class="bg-blue-600 hover:bg-blue-700 text-white px-3 py-1 rounded text-sm transition duration-300">
+                                    ✏️
+                                </button>
                                 <button onclick="deleteTask(${task.id})" class="bg-red-600 hover:bg-red-700 text-white px-3 py-1 rounded text-sm transition duration-300">
                                     🗑️
                                 </button>
@@ -2009,12 +2046,12 @@
             document.getElementById('userDisplay').textContent = gameState.user.name;
             document.getElementById('userDisplayMobile').textContent = gameState.user.name;
             
-            // Update prestige display
-            const currentPrestige = prestigeRanks.find(r => r.name === gameState.user.prestigeRank);
-            if (currentPrestige) {
-                document.getElementById('prestigeDisplay').textContent = currentPrestige.display;
-                document.getElementById('prestigeDisplayMobile').textContent = currentPrestige.display;
-            }
+            // Update prestige display (simplified - just show total resets)
+            document.getElementById('prestigeDisplay').textContent = `🏆 ${gameState.user.totalResets} Reset(s)`;
+            document.getElementById('prestigeDisplayMobile').textContent = `🏆 ${gameState.user.totalResets} Reset(s)`;
+            
+            // Update reset button availability
+            updateResetButton();
             
             // Update fixed task slots
             updateFixedTaskSlots();
@@ -2054,60 +2091,91 @@
 
         // History functions
         function showHistory() {
-            const currentPrestige = prestigeRanks.find(r => r.name === gameState.user.prestigeRank);
-            document.getElementById('historyPrestigeRank').textContent = currentPrestige ? currentPrestige.display : '🥉 BRONZE I';
+            // Stats
             document.getElementById('historyTotalResets').textContent = gameState.user.totalResets;
-            document.getElementById('historyLifetimeXP').textContent = gameState.user.totalLifetimeXP;
-            
-            // Next prestige info
-            const nextPrestige = prestigeRanks.find(r => r.resets > gameState.user.totalResets);
-            if (nextPrestige) {
-                document.getElementById('nextPrestigeInfo').textContent = `${nextPrestige.display} (${nextPrestige.resets} resets)`;
-                const progress = (gameState.user.totalResets / nextPrestige.resets) * 100;
-                document.getElementById('prestigeProgressBar').style.width = Math.min(progress, 100) + '%';
-            } else {
-                document.getElementById('nextPrestigeInfo').textContent = 'MÁXIMO ALCANÇADO';
-                document.getElementById('prestigeProgressBar').style.width = '100%';
-            }
-            
-            // Records
             document.getElementById('recordLifetimeTasks').textContent = gameState.user.totalLifetimeTasks;
             document.getElementById('recordMaxCombo').textContent = gameState.user.maxComboEver;
             
             const highestRank = ranks.find(r => r.name === gameState.user.highestRankEver);
             document.getElementById('recordHighestRank').textContent = highestRank ? highestRank.display.split(' ')[0] : '🔰';
-            document.getElementById('recordLifetimeXP').textContent = gameState.user.totalLifetimeXP;
             
-            // Reset history
-            const historyList = document.getElementById('resetHistoryList');
-            if (gameState.resetHistory && gameState.resetHistory.length > 0) {
-                historyList.innerHTML = gameState.resetHistory.map((reset, index) => {
-                    const date = new Date(reset.date);
-                    const rankDisplay = ranks.find(r => r.name === reset.rank);
+            // Hide reset details initially
+            document.getElementById('resetDetails').classList.add('hidden');
+            document.getElementById('resetSearchInput').value = '';
+            
+            document.getElementById('historyModal').classList.remove('hidden');
+        }
+
+        function searchReset() {
+            const resetNumber = parseInt(document.getElementById('resetSearchInput').value);
+            
+            if (!resetNumber || resetNumber < 1) {
+                alert('⚠️ Digite um número de reset válido!');
+                return;
+            }
+            
+            if (!gameState.resetHistory || gameState.resetHistory.length === 0) {
+                alert('❌ Nenhum reset foi realizado ainda!');
+                return;
+            }
+            
+            if (resetNumber > gameState.user.totalResets) {
+                alert(`❌ Reset #${resetNumber} não existe! Você fez apenas ${gameState.user.totalResets} reset(s).`);
+                return;
+            }
+            
+            // Encontrar o reset (resetHistory[0] é o mais recente)
+            const resetIndex = gameState.resetHistory.length - resetNumber;
+            const resetData = gameState.resetHistory[resetIndex];
+            
+            if (!resetData) {
+                alert(`❌ Dados do Reset #${resetNumber} não encontrados!`);
+                return;
+            }
+            
+            // Mostrar detalhes do reset
+            document.getElementById('resetDetailsTitle').textContent = `📋 RESET #${resetNumber}`;
+            document.getElementById('resetDetailsXP').textContent = resetData.xp;
+            document.getElementById('resetDetailsCompleted').textContent = resetData.tasksCompleted;
+            document.getElementById('resetDetailsCombo').textContent = resetData.combo;
+            
+            const rankDisplay = ranks.find(r => r.name === resetData.rank);
+            document.getElementById('resetDetailsRank').textContent = rankDisplay ? rankDisplay.display.split(' ')[0] : '🔰';
+            
+            // Mostrar lista de tarefas
+            const tasksList = document.getElementById('resetTasksList');
+            if (resetData.tasks && resetData.tasks.length > 0) {
+                tasksList.innerHTML = resetData.tasks.map(task => {
+                    const categoryDisplay = getCategoryDisplay(task.category);
+                    const statusIcon = task.completed ? '✅' : '❌';
+                    const statusClass = task.completed ? 'text-green-400' : 'text-red-400';
+                    
                     return `
-                        <div class="bg-gray-600 p-3 rounded-lg">
-                            <div class="flex justify-between items-center mb-2">
-                                <span class="font-bold text-purple-400">Reset #${gameState.resetHistory.length - index}</span>
-                                <span class="text-xs text-gray-300">${date.toLocaleDateString('pt-BR')}</span>
-                            </div>
-                            <div class="grid grid-cols-2 gap-2 text-xs">
-                                <div>XP: ${reset.xp}</div>
-                                <div>Missões: ${reset.tasksCompleted}</div>
-                                <div>Combo: ${reset.combo}</div>
-                                <div>Patente: ${rankDisplay ? rankDisplay.display.split(' ')[0] : '🔰'}</div>
+                        <div class="bg-gray-700 p-3 rounded-lg">
+                            <div class="flex justify-between items-center">
+                                <div class="flex-1">
+                                    <div class="font-medium ${task.completed ? 'line-through text-gray-400' : ''}">${task.title}</div>
+                                    <div class="text-xs text-gray-400 mt-1">
+                                        ${categoryDisplay} • ${formatDate(task.date)}
+                                    </div>
+                                </div>
+                                <div class="ml-4">
+                                    <span class="${statusClass} text-lg">${statusIcon}</span>
+                                </div>
                             </div>
                         </div>
                     `;
                 }).join('');
             } else {
-                historyList.innerHTML = '<div class="text-center text-gray-400 py-8">Nenhum reset realizado ainda</div>';
+                tasksList.innerHTML = '<div class="text-center text-gray-400 py-4">Nenhuma tarefa encontrada neste reset</div>';
             }
             
-            document.getElementById('historyModal').classList.remove('hidden');
+            document.getElementById('resetDetails').classList.remove('hidden');
         }
 
         function closeHistory() {
             document.getElementById('historyModal').classList.add('hidden');
+            document.getElementById('resetDetails').classList.add('hidden');
         }
 
         // Search profile function
@@ -2154,6 +2222,146 @@
             document.getElementById('searchId').value = '';
         }
 
+        // Edit Task Functions
+        let currentEditingTaskId = null;
+
+        function editTask(taskId) {
+            const task = gameState.tasks.find(t => t.id === taskId);
+            if (!task) {
+                alert('❌ Tarefa não encontrada!');
+                return;
+            }
+            
+            currentEditingTaskId = taskId;
+            
+            // Preencher campos do modal
+            document.getElementById('editTaskTitle').value = task.title;
+            document.getElementById('editTaskCategory').value = task.category;
+            
+            // Adicionar categorias customizadas ao select
+            const editCategorySelect = document.getElementById('editTaskCategory');
+            
+            // Limpar opções customizadas anteriores
+            const customOptions = editCategorySelect.querySelectorAll('option[data-custom="true"]');
+            customOptions.forEach(option => option.remove());
+            
+            // Adicionar categorias customizadas
+            if (gameState.customCategories) {
+                Object.keys(gameState.customCategories).forEach(categoryId => {
+                    const category = gameState.customCategories[categoryId];
+                    const option = document.createElement('option');
+                    option.value = categoryId;
+                    option.textContent = category.display;
+                    option.setAttribute('data-custom', 'true');
+                    editCategorySelect.insertBefore(option, editCategorySelect.lastElementChild);
+                });
+            }
+            
+            // Selecionar categoria atual
+            editCategorySelect.value = task.category;
+            
+            // Mostrar modal
+            document.getElementById('editTaskModal').classList.remove('hidden');
+        }
+
+        function toggleEditCustomCategory() {
+            const categorySelect = document.getElementById('editTaskCategory');
+            const customDiv = document.getElementById('editCustomCategoryDiv');
+            
+            if (categorySelect.value === 'custom') {
+                customDiv.classList.remove('hidden');
+            } else {
+                customDiv.classList.add('hidden');
+            }
+        }
+
+        function selectEditEmoji(emoji) {
+            document.getElementById('editSelectedEmoji').value = emoji;
+            
+            document.querySelectorAll('.edit-emoji-btn').forEach(btn => {
+                btn.classList.remove('selected');
+            });
+            event.target.classList.add('selected');
+        }
+
+        function saveEditTask() {
+            if (!currentEditingTaskId) return;
+            
+            const task = gameState.tasks.find(t => t.id === currentEditingTaskId);
+            if (!task) {
+                alert('❌ Tarefa não encontrada!');
+                return;
+            }
+            
+            const newTitle = document.getElementById('editTaskTitle').value.trim();
+            let newCategory = document.getElementById('editTaskCategory').value;
+            
+            if (!newTitle) {
+                alert('⚠️ Digite um título para a missão!');
+                return;
+            }
+            
+            // Verificar se é categoria customizada
+            if (newCategory === 'custom') {
+                const customName = document.getElementById('editCustomCategory').value.trim();
+                const selectedEmoji = document.getElementById('editSelectedEmoji').value;
+                
+                if (!customName) {
+                    alert('⚠️ Digite o nome da nova categoria!');
+                    return;
+                }
+                
+                const categoryId = customName.toLowerCase().replace(/\s+/g, '_');
+                newCategory = categoryId;
+                
+                if (!gameState.customCategories) {
+                    gameState.customCategories = {};
+                }
+                gameState.customCategories[categoryId] = {
+                    name: customName,
+                    emoji: selectedEmoji,
+                    display: `${selectedEmoji} ${customName}`
+                };
+            }
+            
+            // Atualizar tarefa
+            task.title = newTitle;
+            task.category = newCategory;
+            task.editedAt = new Date();
+            
+            // Salvar e atualizar
+            saveGameState();
+            updateTaskList();
+            closeEditTask();
+            
+            showTaskEdited(newTitle);
+        }
+
+        function closeEditTask() {
+            document.getElementById('editTaskModal').classList.add('hidden');
+            document.getElementById('editTaskTitle').value = '';
+            document.getElementById('editTaskCategory').value = 'trabalho';
+            document.getElementById('editCustomCategory').value = '';
+            document.getElementById('editCustomCategoryDiv').classList.add('hidden');
+            currentEditingTaskId = null;
+        }
+
+        function showTaskEdited(title) {
+            const notification = document.createElement('div');
+            notification.className = 'fixed top-20 right-6 bg-blue-600 text-white px-4 py-2 rounded-lg shadow-lg z-50 transform transition-all duration-1000';
+            notification.innerHTML = `✏️ Missão "${title}" editada com sucesso!`;
+            document.body.appendChild(notification);
+            
+            setTimeout(() => {
+                notification.style.transform = 'translateY(-50px)';
+                notification.style.opacity = '0';
+            }, 100);
+            
+            setTimeout(() => {
+                document.body.removeChild(notification);
+            }, 3000);
+        }
+
         // Save and Load functions
         function saveGameState() {
             if (gameState.currentUser) {
@@ -2176,5 +2384,5 @@
             updateSelectedDateInfo();
         });
     </script>
-<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'987eb05b338fadd3',t:'MTc1OTM1MDMyMi4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'989031892760f18b',t:'MTc1OTUzMzg3MS4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
 </html>
