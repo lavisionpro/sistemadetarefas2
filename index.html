@@ -470,6 +470,7 @@
                                 <option value="pessoal">🏠 Pessoal</option>
                                 <option value="estudos">📚 Estudos</option>
                                 <option value="saude">💪 Saúde</option>
+                                <!-- Custom categories will be added here -->
                                 <option value="custom">✨ Nova Categoria</option>
                             </select>
                         </div>
@@ -527,8 +528,23 @@
                         </div>
                     </div>
                     
-                    <div id="taskList" class="space-y-3">
-                        <!-- Tasks will be added here dynamically -->
+                    <!-- Task Tabs -->
+                    <div class="mb-4">
+                        <div class="flex space-x-1 bg-gray-700 rounded-lg p-1">
+                            <button onclick="switchTaskTab('pending')" id="pendingTab" class="flex-1 py-2 px-4 rounded-md text-sm font-medium transition duration-300 bg-blue-600 text-white">
+                                📋 Pendentes
+                            </button>
+                            <button onclick="switchTaskTab('completed')" id="completedTab" class="flex-1 py-2 px-4 rounded-md text-sm font-medium transition duration-300 text-gray-300 hover:text-white">
+                                ✅ Concluídas
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <!-- Task List Container with Scroll -->
+                    <div class="bg-gray-700 rounded-lg p-4 max-h-96 overflow-y-auto">
+                        <div id="taskList" class="space-y-3">
+                            <!-- Tasks will be added here dynamically -->
+                        </div>
                     </div>
                 </div>
             </div>
@@ -677,6 +693,11 @@
                 <div>
                     <label class="block text-sm font-medium text-gray-300 mb-2">Título da Missão</label>
                     <input type="text" id="editTaskTitle" class="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-md text-white focus:outline-none focus:ring-2 focus:ring-blue-500">
+                </div>
+                
+                <div>
+                    <label class="block text-sm font-medium text-gray-300 mb-2">Data da Missão</label>
+                    <input type="date" id="editTaskDate" class="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-md text-white focus:outline-none focus:ring-2 focus:ring-blue-500">
                 </div>
                 
                 <div>
@@ -862,14 +883,83 @@
                     </div>
                 </div>
                 
-                <div class="flex space-x-3 mt-6">
-                    <button onclick="closeProfile()" class="flex-1 bg-blue-600 hover:bg-blue-700 px-6 py-2 rounded-md transition duration-300">
+                <div class="flex space-x-2 mt-6">
+                    <button onclick="showEditProfile()" class="flex-1 bg-green-600 hover:bg-green-700 px-4 py-2 rounded-md transition duration-300">
+                        ✏️ Editar
+                    </button>
+                    <button onclick="closeProfile()" class="flex-1 bg-blue-600 hover:bg-blue-700 px-4 py-2 rounded-md transition duration-300">
                         Fechar
                     </button>
-                    <button onclick="logout()" class="flex-1 bg-red-600 hover:bg-red-700 px-6 py-2 rounded-md transition duration-300">
+                    <button onclick="logout()" class="flex-1 bg-red-600 hover:bg-red-700 px-4 py-2 rounded-md transition duration-300">
                         🚪 Sair
                     </button>
                 </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Edit Profile Modal -->
+    <div id="editProfileModal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+        <div class="bg-gray-800 rounded-lg p-8 max-w-md w-full mx-4 border border-gray-700 max-h-[90vh] overflow-y-auto">
+            <div class="text-center mb-6">
+                <h3 class="military-font text-2xl font-bold text-green-400 mb-2">✏️ EDITAR PERFIL</h3>
+                <p class="text-gray-300 text-sm">Atualize suas informações pessoais</p>
+            </div>
+            
+            <div class="space-y-4">
+                <div>
+                    <label class="block text-sm font-medium text-gray-300 mb-2">Nome Completo</label>
+                    <input type="text" id="editProfileName" class="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-md text-white focus:outline-none focus:ring-2 focus:ring-green-500">
+                </div>
+                
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-300 mb-2">Idade</label>
+                        <input type="number" id="editProfileAge" min="16" max="99" class="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-md text-white focus:outline-none focus:ring-2 focus:ring-green-500">
+                    </div>
+                    
+                    <div>
+                        <label class="block text-sm font-medium text-gray-300 mb-2">Peso (kg)</label>
+                        <input type="number" id="editProfileWeight" min="30" max="300" class="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-md text-white focus:outline-none focus:ring-2 focus:ring-green-500">
+                    </div>
+                </div>
+                
+                <div>
+                    <label class="block text-sm font-medium text-gray-300 mb-2">Profissão</label>
+                    <input type="text" id="editProfileProfession" class="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-md text-white focus:outline-none focus:ring-2 focus:ring-green-500">
+                </div>
+                
+                <div class="border-t border-gray-600 pt-4">
+                    <h4 class="text-lg font-bold text-yellow-400 mb-3">🔐 ALTERAR SENHA</h4>
+                    
+                    <div>
+                        <label class="block text-sm font-medium text-gray-300 mb-2">Senha Atual</label>
+                        <input type="password" id="editCurrentPassword" class="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-md text-white focus:outline-none focus:ring-2 focus:ring-green-500" placeholder="Digite sua senha atual">
+                    </div>
+                    
+                    <div class="mt-3">
+                        <label class="block text-sm font-medium text-gray-300 mb-2">Nova Senha</label>
+                        <input type="password" id="editNewPassword" class="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-md text-white focus:outline-none focus:ring-2 focus:ring-green-500" placeholder="Digite a nova senha">
+                    </div>
+                    
+                    <div class="mt-3">
+                        <label class="block text-sm font-medium text-gray-300 mb-2">Confirmar Nova Senha</label>
+                        <input type="password" id="editConfirmPassword" class="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-md text-white focus:outline-none focus:ring-2 focus:ring-green-500" placeholder="Confirme a nova senha">
+                    </div>
+                    
+                    <div class="text-xs text-gray-400 mt-2">
+                        Deixe em branco se não quiser alterar a senha
+                    </div>
+                </div>
+            </div>
+            
+            <div class="flex space-x-3 mt-6">
+                <button onclick="saveProfileChanges()" class="flex-1 bg-green-600 hover:bg-green-700 text-white font-bold py-3 px-4 rounded-md transition duration-300 military-font">
+                    ✅ SALVAR ALTERAÇÕES
+                </button>
+                <button onclick="closeEditProfile()" class="flex-1 bg-gray-600 hover:bg-gray-700 text-white py-3 px-4 rounded-md transition duration-300">
+                    Cancelar
+                </button>
             </div>
         </div>
     </div>
@@ -908,6 +998,7 @@
             resetType: null,
             resetHistory: [],
             customCategories: {},
+            currentTaskTab: 'pending',
             version: "2.0"
         };
 
@@ -1091,6 +1182,29 @@
             updateTaskList();
         }
 
+        // Task Tab Functions
+        function switchTaskTab(tab) {
+            gameState.currentTaskTab = tab;
+            
+            // Update tab buttons
+            const pendingTab = document.getElementById('pendingTab');
+            const completedTab = document.getElementById('completedTab');
+            
+            if (tab === 'pending') {
+                pendingTab.classList.add('bg-blue-600', 'text-white');
+                pendingTab.classList.remove('text-gray-300', 'hover:text-white');
+                completedTab.classList.remove('bg-blue-600', 'text-white');
+                completedTab.classList.add('text-gray-300', 'hover:text-white');
+            } else {
+                completedTab.classList.add('bg-blue-600', 'text-white');
+                completedTab.classList.remove('text-gray-300', 'hover:text-white');
+                pendingTab.classList.remove('bg-blue-600', 'text-white');
+                pendingTab.classList.add('text-gray-300', 'hover:text-white');
+            }
+            
+            updateTaskList();
+        }
+
         function updateSelectedDateInfo() {
             const selectedDate = gameState.selectedDate || getBrasiliaDateString();
             const today = getBrasiliaDateString();
@@ -1235,6 +1349,7 @@
             
             checkDailyReset();
             updateSelectedDateInfo();
+            updateCategorySelects();
             
             console.log(`🇧🇷 Horário de Brasília: ${getBrasiliaDate().toLocaleString('pt-BR')}`);
             console.log(`📅 Data atual: ${today}`);
@@ -1540,6 +1655,7 @@
             
             closeResetMenu();
             closeProfile();
+            closeEditProfile();
             closeHistory();
             closeEditTask();
             
@@ -1672,6 +1788,8 @@
                     document.getElementById('customCategory').value = '';
                     categorySelect.value = categoryId;
                     toggleCustomCategory();
+                    updateCategorySelects();
+                    updateCategorySelects();
                 }
                 
                 const task = {
@@ -1945,13 +2063,28 @@
             const taskList = document.getElementById('taskList');
             const selectedDate = gameState.selectedDate || getBrasiliaDateString();
             const today = getBrasiliaDateString();
+            const currentTab = gameState.currentTaskTab || 'pending';
             
-            const filteredTasks = gameState.tasks.filter(t => t.date === selectedDate);
+            // Filter tasks by date first
+            let filteredTasks = gameState.tasks.filter(t => t.date === selectedDate);
+            
+            // Then filter by tab (pending or completed)
+            if (currentTab === 'pending') {
+                filteredTasks = filteredTasks.filter(t => !t.completed);
+            } else {
+                filteredTasks = filteredTasks.filter(t => t.completed);
+            }
             
             if (filteredTasks.length === 0) {
-                let emptyMessage = 'Nenhuma missão encontrada para esta data';
-                if (selectedDate === today) {
-                    emptyMessage = '📅 Nenhuma missão para hoje. Que tal adicionar uma?';
+                let emptyMessage = '';
+                if (currentTab === 'pending') {
+                    emptyMessage = selectedDate === today ? 
+                        '📅 Nenhuma missão pendente para hoje. Que tal adicionar uma?' : 
+                        'Nenhuma missão pendente para esta data';
+                } else {
+                    emptyMessage = selectedDate === today ? 
+                        '✅ Nenhuma missão concluída hoje ainda' : 
+                        'Nenhuma missão concluída nesta data';
                 }
                 taskList.innerHTML = `<div class="text-center text-gray-400 py-8">${emptyMessage}</div>`;
                 return;
@@ -1970,7 +2103,7 @@
                 const isFromFixed = task.isFromFixed ? ' 🔄' : '';
                 
                 return `
-                    <div class="task-item p-4 rounded-lg ${task.completed ? 'opacity-50' : ''} ${isPast && !task.completed ? 'border-l-red-500' : isToday ? 'border-l-green-500' : 'border-l-blue-500'}">
+                    <div class="task-item p-4 rounded-lg ${task.completed ? 'opacity-75' : ''} ${isPast && !task.completed ? 'border-l-red-500' : isToday ? 'border-l-green-500' : 'border-l-blue-500'}">
                         <div class="flex justify-between items-start">
                             <div class="flex-1">
                                 <div class="flex items-center space-x-2 mb-2">
@@ -1978,9 +2111,11 @@
                                     ${isFromFixed ? '<span class="text-xs px-2 py-1 bg-blue-600 rounded-full">Auto</span>' : ''}
                                     ${isPast && !task.completed ? '<span class="text-xs px-2 py-1 bg-red-600 rounded-full">Atrasada</span>' : ''}
                                     ${isToday ? '<span class="text-xs px-2 py-1 bg-green-600 rounded-full">Hoje</span>' : ''}
+                                    ${task.completed ? '<span class="text-xs px-2 py-1 bg-green-600 rounded-full">Concluída</span>' : ''}
                                 </div>
                                 <h4 class="font-medium ${task.completed ? 'line-through text-gray-400' : ''}">${task.title}</h4>
                                 <p class="text-xs text-gray-400 mt-1">📅 ${formatDate(task.date)}</p>
+                                ${task.completed && task.completedAt ? `<p class="text-xs text-green-400 mt-1">✅ Concluída em ${new Date(task.completedAt).toLocaleDateString('pt-BR')}</p>` : ''}
                             </div>
                             <div class="flex space-x-2 ml-4">
                                 ${!task.completed ? `
@@ -2236,6 +2371,7 @@
             
             // Preencher campos do modal
             document.getElementById('editTaskTitle').value = task.title;
+            document.getElementById('editTaskDate').value = task.date;
             document.getElementById('editTaskCategory').value = task.category;
             
             // Adicionar categorias customizadas ao select
@@ -2294,10 +2430,16 @@
             }
             
             const newTitle = document.getElementById('editTaskTitle').value.trim();
+            const newDate = document.getElementById('editTaskDate').value;
             let newCategory = document.getElementById('editTaskCategory').value;
             
             if (!newTitle) {
                 alert('⚠️ Digite um título para a missão!');
+                return;
+            }
+            
+            if (!newDate) {
+                alert('⚠️ Selecione uma data para a missão!');
                 return;
             }
             
@@ -2326,6 +2468,7 @@
             
             // Atualizar tarefa
             task.title = newTitle;
+            task.date = newDate;
             task.category = newCategory;
             task.editedAt = new Date();
             
@@ -2340,6 +2483,7 @@
         function closeEditTask() {
             document.getElementById('editTaskModal').classList.add('hidden');
             document.getElementById('editTaskTitle').value = '';
+            document.getElementById('editTaskDate').value = '';
             document.getElementById('editTaskCategory').value = 'trabalho';
             document.getElementById('editCustomCategory').value = '';
             document.getElementById('editCustomCategoryDiv').classList.add('hidden');
@@ -2360,6 +2504,149 @@
             setTimeout(() => {
                 document.body.removeChild(notification);
             }, 3000);
+        }
+
+        // Profile Edit Functions
+        function showEditProfile() {
+            // Preencher campos com dados atuais
+            document.getElementById('editProfileName').value = gameState.user.name;
+            document.getElementById('editProfileAge').value = gameState.user.age;
+            document.getElementById('editProfileWeight').value = gameState.user.weight;
+            document.getElementById('editProfileProfession').value = gameState.user.profession;
+            
+            // Limpar campos de senha
+            document.getElementById('editCurrentPassword').value = '';
+            document.getElementById('editNewPassword').value = '';
+            document.getElementById('editConfirmPassword').value = '';
+            
+            document.getElementById('editProfileModal').classList.remove('hidden');
+        }
+
+        function closeEditProfile() {
+            document.getElementById('editProfileModal').classList.add('hidden');
+        }
+
+        function saveProfileChanges() {
+            const newName = document.getElementById('editProfileName').value.trim();
+            const newAge = parseInt(document.getElementById('editProfileAge').value);
+            const newWeight = parseInt(document.getElementById('editProfileWeight').value);
+            const newProfession = document.getElementById('editProfileProfession').value.trim();
+            
+            const currentPassword = document.getElementById('editCurrentPassword').value.trim();
+            const newPassword = document.getElementById('editNewPassword').value.trim();
+            const confirmPassword = document.getElementById('editConfirmPassword').value.trim();
+            
+            // Validar dados básicos
+            if (!newName || !newAge || !newWeight || !newProfession) {
+                alert('⚠️ Por favor, preencha todos os campos obrigatórios!');
+                return;
+            }
+            
+            if (newAge < 16 || newAge > 99) {
+                alert('⚠️ Idade deve estar entre 16 e 99 anos!');
+                return;
+            }
+            
+            if (newWeight < 30 || newWeight > 300) {
+                alert('⚠️ Peso deve estar entre 30 e 300 kg!');
+                return;
+            }
+            
+            // Validar alteração de senha (se fornecida)
+            if (currentPassword || newPassword || confirmPassword) {
+                if (!currentPassword) {
+                    alert('⚠️ Digite sua senha atual para alterá-la!');
+                    return;
+                }
+                
+                if (currentPassword !== gameState.user.password) {
+                    alert('⚠️ Senha atual incorreta!');
+                    return;
+                }
+                
+                if (!newPassword) {
+                    alert('⚠️ Digite a nova senha!');
+                    return;
+                }
+                
+                if (newPassword.length < 4) {
+                    alert('⚠️ A nova senha deve ter pelo menos 4 caracteres!');
+                    return;
+                }
+                
+                if (newPassword !== confirmPassword) {
+                    alert('⚠️ A confirmação da nova senha não confere!');
+                    return;
+                }
+                
+                // Atualizar senha
+                gameState.user.password = newPassword;
+            }
+            
+            // Atualizar dados do perfil
+            gameState.user.name = newName.toUpperCase();
+            gameState.user.age = newAge;
+            gameState.user.weight = newWeight;
+            gameState.user.profession = newProfession;
+            
+            // Salvar alterações
+            saveGameState();
+            updateDisplay();
+            closeEditProfile();
+            
+            // Mostrar confirmação
+            const message = currentPassword ? 
+                '✅ Perfil e senha atualizados com sucesso!' : 
+                '✅ Perfil atualizado com sucesso!';
+            
+            showProfileUpdated(message);
+        }
+
+        function showProfileUpdated(message) {
+            const notification = document.createElement('div');
+            notification.className = 'fixed top-20 right-6 bg-green-600 text-white px-4 py-2 rounded-lg shadow-lg z-50 transform transition-all duration-1000';
+            notification.innerHTML = message;
+            document.body.appendChild(notification);
+            
+            setTimeout(() => {
+                notification.style.transform = 'translateY(-50px)';
+                notification.style.opacity = '0';
+            }, 100);
+            
+            setTimeout(() => {
+                document.body.removeChild(notification);
+            }, 3000);
+        }
+
+        // Custom Categories Management
+        function updateCategorySelects() {
+            const taskCategorySelect = document.getElementById('taskCategory');
+            const editCategorySelect = document.getElementById('editTaskCategory');
+            
+            // Limpar categorias customizadas anteriores
+            [taskCategorySelect, editCategorySelect].forEach(select => {
+                if (select) {
+                    const customOptions = select.querySelectorAll('option[data-custom="true"]');
+                    customOptions.forEach(option => option.remove());
+                }
+            });
+            
+            // Adicionar categorias customizadas
+            if (gameState.customCategories) {
+                Object.keys(gameState.customCategories).forEach(categoryId => {
+                    const category = gameState.customCategories[categoryId];
+                    
+                    [taskCategorySelect, editCategorySelect].forEach(select => {
+                        if (select) {
+                            const option = document.createElement('option');
+                            option.value = categoryId;
+                            option.textContent = category.display;
+                            option.setAttribute('data-custom', 'true');
+                            select.insertBefore(option, select.lastElementChild);
+                        }
+                    });
+                });
+            }
         }
 
         // Save and Load functions
@@ -2384,5 +2671,5 @@
             updateSelectedDateInfo();
         });
     </script>
-<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'989031892760f18b',t:'MTc1OTUzMzg3MS4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'98984ca474b7128c',t:'MTc1OTYxODg2OC4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
 </html>
